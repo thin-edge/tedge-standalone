@@ -26,7 +26,7 @@ jobs:
           fetch-depth: 0
       - uses: taiki-e/install-action@just
       - name: Build
-        run: just build
+        run: just build ${{ matrix.target.arch }}
 
       - name: Upload packages as zip
         # https://github.com/marketplace/actions/upload-a-build-artifact
