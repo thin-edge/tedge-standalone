@@ -19,6 +19,9 @@ jobs:
             - arch: aarch64-linux-musl
             - arch: arm-linux-musleabihf
             - arch: arm-linux-musleabi
+            - arch: x86_64-linux
+            - arch: x86-linux
+            - arch: riscv64-linux
     steps:
       - name: Checkout
         uses: actions/checkout@v4
