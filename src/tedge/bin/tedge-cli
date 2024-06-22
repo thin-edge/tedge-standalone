@@ -1,0 +1,5 @@
+#!/bin/sh
+set -e
+dir=$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd)
+PATH="$dir:$PATH"
+tedge --config-dir /data/tedge "$@"
