@@ -14,9 +14,8 @@ echo "/data/tedge/start.sh > /dev/kmsg" >> /data/oem_poststart.sh
 if [ ! -f /data/oem_poststart.sh ]; then
 cat << EOT > /data/oem_poststart.sh
 #!/bin/sh
-#
+
 # Activate Modem
-#
 # Wait before trying to activate the modem other it won't work
 # TODO: Find a more reliable way to confirm that the activation worked
 sleep 30
@@ -40,5 +39,3 @@ mkdir -p /data/ssh
 echo 1 > /data/ssh/enable_sshd
 cp /etc/ssh/sshd_config_readonly /data/ssh/sshd_config_readonly
 ```
-
-### 
