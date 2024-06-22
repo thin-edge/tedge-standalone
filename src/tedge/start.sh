@@ -43,6 +43,3 @@ nohup tedge-agent --config-dir /data/tedge > /tmp/tedge.log &
 echo "Starting tedge-mapper-c8y"
 killall -q tedge-mapper
 nohup tedge-mapper --config-dir /data/tedge c8y > /tmp/tedge.log &
-
-echo "Starting ssh daemon"
-/usr/sbin/sshd -f /data/tedge/sshd_config
