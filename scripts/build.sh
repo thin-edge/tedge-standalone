@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -e
+set -ex
 TARGET="$1"
 
 ZIG=zig
