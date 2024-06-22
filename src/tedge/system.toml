@@ -1,0 +1,2 @@
+[system]
+reboot = ["sh", "-c", "sync; sync; sleep 2; reboot"]

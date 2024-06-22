@@ -1,0 +1,3 @@
+[[files]]
+path = "/var/log/tedge/agent/workflow-software_*"
+type = "software-management"

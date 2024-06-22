@@ -1,0 +1,10 @@
+[[files]]
+path = "/data/tedge/tedge.toml"
+type = "tedge.toml"
+
+[[files]]
+group = "tedge"
+mode = 0o444
+path = "/data/tedge/plugins/tedge-log-plugin.toml"
+type = "tedge-log-plugin"
+user = "tedge"

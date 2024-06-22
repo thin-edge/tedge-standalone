@@ -1,0 +1,4 @@
+[exec]
+command = "/data/tedge/bin/c8y-remote-access-plugin --config-dir /data/tedge"
+topic = "c8y/s/ds"
+on_message = "530"
