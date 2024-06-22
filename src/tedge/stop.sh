@@ -7,14 +7,17 @@ stop_service(){
     if [ $# -gt 1 ]; then
         pattern="$2"
     fi
-    PROC=$(pgrep -f "$pattern")
+    PROC=$(pgrep -f "$pattern" ||:)
     if [ -n "$PROC" ]; then
-        echo "Stopping $name (pid=$PROC)" >&2
-        kill -15 "$PROC"
+        echo "Stopping $name (pid=$PROC)"
+        kill -15 "$PROC" ||:
     else
-        echo "Service is not running. name=$name" >&2
+        echo "Service is not running. name=$name"
     fi
 }
+
+echo "Stopping the supervisor"
+killall -q supervise.sh ||:
 
 stop_service mosquitto
 stop_service tedge-agent

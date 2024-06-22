@@ -9,11 +9,11 @@ CONFIG_DIR=/data/tedge
 tedge init --config-dir "$CONFIG_DIR" --user root --group root
 
 # Check if a certificate already exists
-if [ -z "$(tedge config get --config-dir "$CONFIG_DIR" device.id >/dev/null 2>&1)" ]; then
+if [ -z "$(tedge config get --config-dir "$CONFIG_DIR" device.id 2>/dev/null)" ]; then
     tedge cert create --config-dir "$CONFIG_DIR" --device-id "$(/data/tedge/bin/tedge-identity)"
 fi
 
-if [ -z "$(tedge config get --config-dir "$CONFIG_DIR" c8y.url >/dev/null 2>&1)" ]; then
+if [ -z "$(tedge config get --config-dir "$CONFIG_DIR" c8y.url 2>/dev/null)" ]; then
     if [ -z "$C8Y_URL" ]; then
         printf "Enter c8y.url: "
         read -r C8Y_URL
@@ -31,15 +31,23 @@ if [ -z "$(tedge config get --config-dir "$CONFIG_DIR" c8y.url >/dev/null 2>&1)"
     tedge connect c8y --config-dir "$CONFIG_DIR"
 fi
 
-echo "Starting mosquitto"
-killall -q mosquitto
-nohup mosquitto -c /data/tedge/mosquitto.conf > /tmp/tedge.log &
-sleep 1
+# killall -q mosquitto
+if ! pgrep -f "supervise.sh mosquitto"; then
+    nohup supervise.sh mosquitto mosquitto -c /data/tedge/mosquitto.conf > /tmp/tedge.log &
+    sleep 1
+else
+    echo "mosquitto is already running supervised"
+fi
 
-echo "Starting tedge-agent"
-killall -q tedge-agent
-nohup tedge-agent --config-dir /data/tedge > /tmp/tedge.log &
+if ! pgrep -f "supervise.sh tedge-agent"; then
+    nohup supervise.sh tedge-agent tedge-agent --config-dir /data/tedge > /tmp/tedge.log &
+    sleep 1
+else
+    echo "tedge-agent is already running supervised"
+fi
 
-echo "Starting tedge-mapper-c8y"
-killall -q tedge-mapper
-nohup tedge-mapper --config-dir /data/tedge c8y > /tmp/tedge.log &
+if ! pgrep -f "supervise.sh tedge-mapper-c8y"; then
+    nohup supervise.sh tedge-mapper-c8y tedge-mapper --config-dir /data/tedge c8y > /tmp/tedge.log &
+else
+    echo "tedge-mapper-c8y is already running supervised"
+fi
