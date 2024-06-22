@@ -21,4 +21,4 @@ path = "/var/log/tedge"
 path = "/tmp"
 
 [data]
-path = "/var/tedge"
+path = "/tmp/tedge"
