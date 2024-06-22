@@ -1,0 +1,118 @@
+#!/bin/sh
+set -e
+
+EXIT_OK=0
+EXIT_USAGE=1
+EXIT_FAILURE=2
+# EXIT_RETRY=3
+
+usage() {
+    cat << EOF
+USAGE
+    $0 plugin for thin-edge.io
+
+    $0 <COMMAND> [MODULE_NAME] [--module-version [VERSION]] [--file [FILE]]
+
+    $0 list
+    $0 prepare
+    $0 install <MODULE_NAME> [--module-version [VERSION]] [--file [FILE]]
+    $0 remove <MODULE_NAME> [--module-version [VERSION]]
+    $0 finalize
+EOF
+}
+
+MODULE_NAME=
+MODULE_VERSION=
+FILE=
+
+log() { echo "$@" >&2; }
+
+if [ $# -lt 1 ]; then
+    log "Invalid number of positional arguments"
+    usage
+    exit "$EXIT_USAGE"
+fi
+
+# argument parsing
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --module-version)
+        MODULE_VERSION="$2"
+        shift
+        ;;
+    --file)
+        FILE="$2"
+        shift
+        ;;
+    -h|--help)
+        usage
+        exit "$EXIT_USAGE"
+        ;;
+    --*|-*)
+        log "Unknown option $1"
+        exit "$EXIT_USAGE"
+        ;;
+    *)
+        if [ -z "$COMMAND" ]; then
+            COMMAND="$1"
+        elif [ -z "$MODULE_NAME" ]; then
+            MODULE_NAME="$1"
+        fi
+      ;;
+  esac
+  shift
+done
+
+command_exists() {
+    command -V "$1" >/dev/null 2>&1
+}
+
+case "$COMMAND" in
+    prepare)
+        ;;
+    list)
+        if ! command_exists tedge; then
+            log "The tedge command was not found! This is very unexpected" >&2
+            exit "$EXIT_USAGE"
+        fi
+        printf 'tedge\t%s\n' "$(tedge --version | cut -d' ' -f2)"
+
+        # mosquitto
+        if [ -x /data/tedge/bin/mosquitto ]; then
+            mosquitto_version=$(/data/tedge/bin/mosquitto -h | head -n1 | cut -d' ' -f3)
+            printf 'mosquitto\t%s\n' "$mosquitto_version"
+        fi
+        ;;
+    install)
+        if [ -n "$FILE" ]; then
+            chmod +x "$FILE"
+            if ! "$FILE" --version; then
+                log "Failed to run new binary. tmpfile=$FILE"
+                exit "$EXIT_FAILURE"
+            fi
+            log "Moving binary from $FILE to /data/tedge/bin/${MODULE_NAME}"
+            mv "$FILE" "/data/tedge/bin/${MODULE_NAME}"
+        else
+            log "Installing a binary without providing the url is not supported: MODULE_NAME=$MODULE_NAME, MODULE_VERSION=$MODULE_VERSION, FILE=$FILE"
+            exit "$EXIT_FAILURE"
+        fi
+        ;;
+    remove)
+        # Removing
+        # shellcheck disable=SC2086
+        log "Unsupported command: $COMMAND"
+        exit "$EXIT_FAILURE"
+        ;;
+    update-list)
+        # Not supported, use remove install and remove instead
+        exit "$EXIT_USAGE"
+        ;;
+    finalize)
+        ;;
+    *)
+        log "Unsupported command: $COMMAND"
+        exit 1
+        ;;
+esac
+
+exit "$EXIT_OK"
