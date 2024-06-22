@@ -1,3 +1,9 @@
 .DS_Store
 package.tar.gz
 *.tar.gz
+.venv/
+.env
+# Ignore the static binaries
+src/tedge/bin/mosquitto
+src/tedge/bin/tedge
+tmp/
