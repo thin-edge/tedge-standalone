@@ -2,7 +2,6 @@
 
 ## TODO
 
-* check how to update tedge binary (custom sm-plugin?)
 * create wrapper script for tedge init manager interactions, though maybe it is not needed
 
 ## Bootstrapping
