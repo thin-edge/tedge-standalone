@@ -11,6 +11,8 @@ if ! command -V "$ZIG" >/dev/null 2>&1; then
     ZIG="python -m ziglang"
 fi
 
+git submodule update --init --recursive
+
 cd binaries/zig-mosquitto
 ln -sf ../mosquitto mosquitto
 
