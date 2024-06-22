@@ -7,3 +7,4 @@ package.tar.gz
 src/tedge/bin/mosquitto
 src/tedge/bin/tedge
 tmp/
+tedge-*
