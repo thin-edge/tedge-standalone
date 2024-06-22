@@ -60,4 +60,4 @@ jobs:
           generate_release_notes: false
           draft: true
           files: |
-            tmp/*.tar.gz
+            tmp/**/*.tar.gz
