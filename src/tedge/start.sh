@@ -31,8 +31,20 @@ if [ -z "$(tedge config get --config-dir "$CONFIG_DIR" c8y.url 2>/dev/null)" ]; 
     tedge connect c8y --config-dir "$CONFIG_DIR"
 fi
 
-# killall -q mosquitto
+# Show info to user about important connection settings
+DEVICE_ID="$(tedge config get --config-dir "$CONFIG_DIR" device.id 2>/dev/null)"
+C8Y_URL="$(tedge config get --config-dir "$CONFIG_DIR" c8y.url 2>/dev/null)"
+echo
+echo "---------------------------------------------------------------"
+echo "thin-edge.io"
+echo "  device.id:      $DEVICE_ID"
+echo "  c8y.url:        $C8Y_URL"
+echo "  Cumulocity IoT: https://${C8Y_URL}/apps/devicemanagement/index.html#/assetsearch?filter=*${DEVICE_ID}*"
+echo "---------------------------------------------------------------"
+echo
+
 if ! pgrep -f "supervise.sh mosquitto"; then
+    echo "Starting mosquitto (with supervisor)"
     nohup supervise.sh mosquitto mosquitto -c /data/tedge/mosquitto.conf > /tmp/tedge.log &
     sleep 1
 else
@@ -40,6 +52,7 @@ else
 fi
 
 if ! pgrep -f "supervise.sh tedge-agent"; then
+    echo "Starting tedge-agent (with supervisor)"
     nohup supervise.sh tedge-agent tedge-agent --config-dir /data/tedge > /tmp/tedge.log &
     sleep 1
 else
@@ -47,6 +60,7 @@ else
 fi
 
 if ! pgrep -f "supervise.sh tedge-mapper-c8y"; then
+    echo "Starting tedge-mapper-c8y (with supervisor)"
     nohup supervise.sh tedge-mapper-c8y tedge-mapper --config-dir /data/tedge c8y > /tmp/tedge.log &
 else
     echo "tedge-mapper-c8y is already running supervised"
