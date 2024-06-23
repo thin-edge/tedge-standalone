@@ -17,11 +17,17 @@ jobs:
         matrix:
           target:
             - arch: aarch64-linux-musl
+              name: arm64
             - arch: arm-linux-musleabihf
+              name: armhf
             - arch: arm-linux-musleabi
+              name: armel
             - arch: x86_64-linux
+              name: amd64
             - arch: x86-linux
+              name: i386
             - arch: riscv64-linux
+              name: riscv64
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -29,14 +35,14 @@ jobs:
           fetch-depth: 0
       - uses: taiki-e/install-action@just
       - name: Build
-        run: just build ${{ matrix.target.arch }}
+        run: just build ${{ matrix.target.arch }} ${{ matrix.target.name }}
 
       - name: Upload packages as zip
         # https://github.com/marketplace/actions/upload-a-build-artifact
         uses: actions/upload-artifact@v4
         with:
-            name: tedge-standalone-${{ matrix.target.arch }}
-            path: tedge-standalone-${{ matrix.target.arch }}.tar.gz
+            name: tedge-standalone-${{ matrix.target.name }}
+            path: tedge-standalone-${{ matrix.target.name }}.tar.gz
 
   release:
     runs-on: ubuntu-latest
