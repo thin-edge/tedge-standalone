@@ -3,14 +3,14 @@
 export SSL_CERT_FILE=/data/tedge/c8y.crt
 
 export PATH="/data/tedge/bin:$PATH"
-CONFIG_DIR=/data/tedge
+export CONFIG_DIR=/data/tedge
 
 # Init (also creating the symlinks if required)
 tedge init --config-dir "$CONFIG_DIR" --user root --group root
 
 # Check if a certificate already exists
 if [ -z "$(tedge config get --config-dir "$CONFIG_DIR" device.id 2>/dev/null)" ]; then
-    tedge cert create --config-dir "$CONFIG_DIR" --device-id "$(/data/tedge/bin/tedge-identity)"
+    tedge cert create --config-dir "$CONFIG_DIR" --device-id "$(/data/tedge/bin/tedge-identity 2>/dev/null)"
 fi
 
 if [ -z "$(tedge config get --config-dir "$CONFIG_DIR" c8y.url 2>/dev/null)" ]; then
