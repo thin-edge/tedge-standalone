@@ -5,7 +5,7 @@ set -eu
 #
 
 IDENTITY_PREFIX=${IDENTITY_PREFIX:-}
-DEFAULT_MODEL=${DEFAULT_MODEL:-unknown}
+DEFAULT_MODEL=${DEFAULT_MODEL:-tedge}
 
 get_mac_address() {
     SCN=/sys/class/net
