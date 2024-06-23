@@ -2,7 +2,7 @@
 set -e
 
 INSTALL_PATH="${INSTALL_PATH:-/data}"
-VERSION="${VERSION:-0.0.1-rc.5}"
+VERSION="${VERSION:-0.0.1-rc.6}"
 
 usage() {
     cat << EOT
