@@ -1,0 +1,54 @@
+#!/bin/sh
+set -e
+
+export SVDIR="${SVDIR:-/run/services}"
+export RUNIT_SRCDIR="${RUNIT_SRCDIR:-/data/tedge/services}"
+
+if [ -f /data/tedge/env ]; then
+    set -a
+    # shellcheck disable=SC1091
+    . /data/tedge/env
+    set +a
+fi
+
+manage_runit() {
+    command="$1"
+    name="$2"
+
+    case "$command" in
+        is_available)
+            # Check if runit instance is active
+            pgrep -f "runsvdir -P $SVDIR" >/dev/null 2>&1
+            ;;
+        start) sv start "$name" ;;
+        stop) sv stop "$name" ;;
+        restart) sv restart "$name" ;;
+        enable)
+            if [ ! -d "$SVDIR/$name" ]; then
+                ln -s "$RUNIT_SRCDIR/$name" "$SVDIR/"
+            fi
+            # Remove file (if it exists)
+            rm -f "$RUNIT_SRCDIR/$name/down"
+            ;;
+        disable)
+            if [ -d "$RUNIT_SRCDIR/$name" ]; then
+                touch "$RUNIT_SRCDIR/$name/down"
+            fi
+            ;;
+        is_active|status) sv status "$name" ;;
+        restart_device)
+            shutdown -r now
+            ;;
+        *) echo "Unsupported command. command=$command"; exit 1 ;;
+    esac
+}
+
+##############################
+# Main
+##############################
+COMMAND="$1"
+SERVICE_NAME=""
+if [ $# -ge 2 ]; then
+    SERVICE_NAME="$2"
+fi
+manage_runit "$COMMAND" "$SERVICE_NAME"
