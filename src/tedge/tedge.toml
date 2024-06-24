@@ -1,9 +1,6 @@
 [config]
 version = "2"
 
-[c8y]
-root_cert_path = "/data/tedge/c8y.crt"
-
 [c8y.proxy.client]
 host = "127.0.0.1"
 

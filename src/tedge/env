@@ -1,4 +1,4 @@
-SSL_CERT_FILE=/data/tedge/c8y.crt
+SSL_CERT_FILE=/data/tedge/ca-certificates.crt
 SVDIR=/run/services
 RUNIT_SRCDIR=/data/tedge/services
 CONFIG_DIR=/data/tedge
