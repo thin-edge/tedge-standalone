@@ -3,8 +3,19 @@ path = "/data/tedge/tedge.toml"
 type = "tedge.toml"
 
 [[files]]
-group = "tedge"
-mode = 0o444
+path = "/data/tedge/system.toml"
+type = "system.toml"
+
+[[files]]
+group = "root"
+user = "root"
+mode = 0o644
 path = "/data/tedge/plugins/tedge-log-plugin.toml"
 type = "tedge-log-plugin"
-user = "tedge"
+
+[[files]]
+group = "root"
+user = "root"
+mode = 0o644
+path = "/data/tedge/ca-certificates.crt"
+type = "ca-certificates"
