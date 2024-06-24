@@ -49,3 +49,10 @@ mkdir -p /data/ssh
 echo 1 > /data/ssh/enable_sshd
 cp /etc/ssh/sshd_config_readonly /data/ssh/sshd_config_readonly
 ```
+
+If the `ssh` process does not start, then you can manually start the service by adding the following to the `/data/oem_poststart.sh` file.
+
+```sh
+# enable ssh
+/etc/init.d/sshd start
+```
