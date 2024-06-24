@@ -1,2 +1,11 @@
+[init]
+name = "tedgectl"
+is_available = ["/data/tedge/bin/tedgectl", "is_available"]
+restart = ["/data/tedge/bin/tedgectl", "restart", "{}"]
+stop =  ["/data/tedge/bin/tedgectl", "stop", "{}"]
+enable =  ["/data/tedge/bin/tedgectl", "enable", "{}"]
+disable =  ["/data/tedge/bin/tedgectl", "disable", "{}"]
+is_active = ["/data/tedge/bin/tedgectl", "is_active", "{}"]
+
 [system]
 reboot = ["sh", "-c", "sync; sync; sleep 2; reboot"]

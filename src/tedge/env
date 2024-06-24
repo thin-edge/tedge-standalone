@@ -1,0 +1,5 @@
+SSL_CERT_FILE=/data/tedge/c8y.crt
+SVDIR=/run/services
+RUNIT_SRCDIR=/data/tedge/services
+CONFIG_DIR=/data/tedge
+PATH=/data/tedge/bin:/sbin:/bin:/usr/sbin:/usr/bin

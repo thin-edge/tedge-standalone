@@ -1,0 +1,25 @@
+#!/bin/sh -e
+touch "/var/log/mosquitto.log"
+DAEMON_USER="root"
+LOG_FILE="/var/log/mosquitto.log"
+PIDFILE="/run/lock/mosquitto.lock"
+BIN="/data/tedge/bin"
+CONFIG_DIR="/data/tedge"
+
+if [ -f /data/tedge/env ]; then
+    set -a
+    # shellcheck disable=SC1091
+    . /data/tedge/env
+    set +a
+fi
+
+mkdir -p /run/lock
+chown 1777 /run/lock
+touch "$PIDFILE"
+"$BIN/tedge" --config-dir "$CONFIG_DIR" init --user root --group root ||:
+
+if [ -n "$DAEMON_USER" ]; then
+    chown "$DAEMON_USER" "$PIDFILE"
+    chown "$DAEMON_USER" "/var/log/mosquitto.log"
+fi
+exec chpst -u "$DAEMON_USER" "$BIN/mosquitto" -c /data/tedge/mosquitto.conf >> "$LOG_FILE" 2>&1
