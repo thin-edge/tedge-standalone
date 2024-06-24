@@ -53,6 +53,10 @@ tedge-cli cert upload c8y --user "<myuser>"
 Where `tedge-cli` is a custom wrapper around `tedge` which sets the custom configuration directory for you from the `CONFIG_DIR` environment variable, via `--config-dir "$CONFIG_DIR"`. The `tedge-cli` wrapper can be removed once the following ticket this ticket is implemented, https://github.com/thin-edge/thin-edge.io/issues/1794.
 
 
+## ca-certificates
+
+The standalone installation includes an existing **ca-certificates.crt** file which is installed under `/data/tedge/ca-certificates.crt`. Depending on which Cumulocity IoT instance, and external services you wish to use with thin-edge.io, you may need to add addition CA certificates to the file.
+
 ## Automatically starting services
 
 **Note:** For Telit devices, checkout these [instructions](./docs/TELIT.md).
@@ -119,4 +123,18 @@ Disable services so they don't automatically run on startup.
 tedgectl disable mosquitto
 tedgectl disable tedge-agent
 tedgectl disable tedge-mapper-c8y
+```
+
+## Upgrading
+
+https://cloudsmith.io/~thinedge/repos/tedge-main/packages/?q=format%3Araw
+
+
+For example, the [tedge-armv7](https://cloudsmith.io/~thinedge/repos/tedge-main/packages/detail/raw/tedge-armv7/1.1.2-rc135+gf35f1f1/) package.
+
+```sh
+c8y software get --id tedge || c8y software create --name tedge --data softwareType=executable
+
+# Sele
+c8y software versions create --software tedge --version "1.1.2-rc135+gf35f1f1" --url "https://dl.cloudsmith.io/public/thinedge/tedge-main/raw/names/tedge-armv7/versions/1.1.2-rc135+gf35f1f1/tedge.tar.gz"
 ```
