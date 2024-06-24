@@ -17,6 +17,9 @@ if [ -z "$(tedge-cli config get device.id 2>/dev/null)" ]; then
     tedge-cli cert create --device-id "$(/data/tedge/bin/tedge-identity 2>/dev/null)"
 fi
 
+# Show device certifcate
+tedge-cli cert show
+
 if [ -z "$(tedge-cli config get c8y.url 2>/dev/null)" ]; then
     if [ -z "$C8Y_URL" ]; then
         printf "Enter c8y.url: "

@@ -66,6 +66,8 @@ tedgectl enable tedge-mapper-c8y
 runsvdir -P "$SVDIR/"
 ```
 
+Then reboot device to check if the services are started correctly.
+
 **Note** The above snippet uses **runit** to launch the thin-edge.io services from a custom configured services directory (as defined in the `/data/tedge/env` dotenv file). **runit** is used as it is included in busy-box and provides service supervision (e.g. it will automatically relaunch the service if it crashes for any reason).
 
 ## Service management
