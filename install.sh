@@ -89,7 +89,7 @@ main() {
     echo
     echo "Configure and start thin-edge.io using the following command:"
     echo
-    echo "    $INSTALL_PATH/tedge/start.sh"
+    echo "    $INSTALL_PATH/tedge/bootstrap.sh"
     echo
 }
 
