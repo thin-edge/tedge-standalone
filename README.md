@@ -55,6 +55,8 @@ Where `tedge-cli` is a custom wrapper around `tedge` which sets the custom confi
 
 ## Automatically starting services
 
+**Note:** For Telit devices, checkout these [instructions](./docs/TELIT.md).
+
 Assuming you have already bootstrapped the device (e.g. configured the Cumulocity IoT instance, and uploaded the device certificate), then you need to add the following lines to your startup routine:
 
 ```sh
