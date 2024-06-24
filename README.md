@@ -63,7 +63,11 @@ mkdir -p "$SVDIR"
 tedgectl enable mosquitto
 tedgectl enable tedge-agent
 tedgectl enable tedge-mapper-c8y
-runsvdir -P "$SVDIR/"
+runsvdir -P "$SVDIR/" &
+
+sleep 5
+MESSAGE=$(printf '{"text": "tedge started up 🚀 version=%s"}' "$(tedge-cli --version | cut -d' ' -f2)")
+tedge-cli mqtt pub --qos 1 "te/device/main///e/startup" "$MESSAGE"
 ```
 
 Then reboot device to check if the services are started correctly.

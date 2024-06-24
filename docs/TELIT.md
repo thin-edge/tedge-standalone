@@ -38,7 +38,7 @@ Using the Telit startup hooks, the following code can be added to the `oem_posts
     tedgectl enable mosquitto
     tedgectl enable tedge-agent
     tedgectl enable tedge-mapper-c8y
-    runsvdir -P "\$SVDIR/"
+    runsvdir -P "\$SVDIR/" &
     EOT
     ```
 
