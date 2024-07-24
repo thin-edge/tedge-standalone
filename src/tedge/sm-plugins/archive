@@ -1,0 +1,188 @@
+#!/bin/sh
+# Note: this script is maintained under https://github.com/thin-edge/tedge-archive-plugin/blob/main/src/sm-plugin/tedge-archive-plugin
+set -e
+
+EXIT_OK=0
+EXIT_USAGE=1
+EXIT_FAILURE=2
+# EXIT_RETRY=3
+
+usage() {
+    cat << EOF
+USAGE
+    Generic archive plugin for thin-edge.io
+
+    $0 <COMMAND> [MODULE_NAME] [--module-version [VERSION]] [--file [FILE]]
+
+    $0 list
+    $0 prepare
+    $0 install <MODULE_NAME> [--module-version [VERSION]] [--file [FILE]]
+    $0 remove <MODULE_NAME> [--module-version [VERSION]]
+    $0 finalize
+EOF
+}
+
+MODULE_NAME=
+MODULE_VERSION=
+FILE=
+
+# Path to the root directory
+ROOT_DIR=/data
+ARCHIVE_SOFTWARE_DIR="$ROOT_DIR/.tedge-archive-plugin"
+MAINTSCRIPT_DIR=SCRIPTS
+
+log() { echo "$@" >&2; }
+
+if [ $# -lt 1 ]; then
+    log "Invalid number of positional arguments"
+    usage
+    exit "$EXIT_USAGE"
+fi
+
+# argument parsing
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --module-version)
+        MODULE_VERSION="$2"
+        shift
+        ;;
+    --file)
+        FILE="$2"
+        shift
+        ;;
+    -h|--help)
+        usage
+        exit "$EXIT_USAGE"
+        ;;
+    --*|-*)
+        log "Unknown option $1"
+        exit "$EXIT_USAGE"
+        ;;
+    *)
+        if [ -z "$COMMAND" ]; then
+            COMMAND="$1"
+        elif [ -z "$MODULE_NAME" ]; then
+            MODULE_NAME="$1"
+        fi
+      ;;
+  esac
+  shift
+done
+
+# Only read the file if it has the correct permissions, to prevent people from editing it
+# and side-loading functions
+SETTINGS_FILE=/etc/tedge-archive-plugin/env
+FOUND_FILE=
+if [ -f "$SETTINGS_FILE" ]; then
+    FOUND_FILE=$(find "$SETTINGS_FILE" -perm 644 | head -1)
+fi
+
+if [ -n "$FOUND_FILE" ]; then
+    log "Loading setting file: $SETTINGS_FILE"
+    # shellcheck disable=SC1091,SC1090
+    . "$SETTINGS_FILE"
+fi
+
+get_module_dir() {
+    echo "$ARCHIVE_SOFTWARE_DIR/${MODULE_NAME}@${MODULE_VERSION}"
+}
+
+case "$COMMAND" in
+    prepare)
+        ;;
+    list)
+        find "$ARCHIVE_SOFTWARE_DIR" -type f -name "package" | while read -r ITEM; do
+            head -n1 "$ITEM"
+        done
+        ;;
+    install)
+        if [ ! -f "$FILE" ]; then
+            log "File not found. path=$FILE"
+            exit "$EXIT_FAILURE"
+        fi
+
+        MODULE_DIR="$(get_module_dir)"
+        mkdir -p "$MODULE_DIR"
+
+        log "Installing from file: $FILE"
+        if tar -tzf "$FILE" >/dev/null 2>&1; then
+            #
+            # tarball/gzip
+            #
+            log "Unpacking tarball file"
+            mkdir -p "$ROOT_DIR"
+
+            log "Unpacking maintainer scripts"
+            # Run preinstall script (if found)
+            if tar -tf "$FILE" | grep -q "$MAINTSCRIPT_DIR/preinst"; then
+                tar -xvzf "$FILE" -C "$MODULE_DIR" "./$MAINTSCRIPT_DIR/preinst"
+                find "$MODULE_DIR" -type f -name "preinst" -perm 755 -exec {} \;
+            fi
+
+            log "Unpacking files"
+            tar --exclude="./$MAINTSCRIPT_DIR/**" -xvzf "$FILE" -C "$ROOT_DIR"
+
+            # Store list of files which are included in the package so they can be uninstalled later on
+            # by the user
+
+            # Note: When writing the list, the ROOT_DIR needs to be prefixed to the relative path
+            # so that the file path is fixed at install time to avoid problems incase if someone changes the ROOT_DIR
+            # and then tries to remove the package!
+            tar -tf "$FILE" | grep -v "$MAINTSCRIPT_DIR/" | grep -v '/$' | sed 's|^.|'"$ROOT_DIR"'|g' > "$MODULE_DIR/files"
+
+            # TODO: bsdtar list tar file contents output looks more like ls -l which includes meta information about each file
+            # so it requires additional parsing with awk
+            # tar -tf "$FILE" | grep -v "$MAINTSCRIPT_DIR/" | awk -F' ' '$6 !~ /\/$/ { print $6 }' > "$MODULE_DIR/files"
+
+            # Run postinst script (if found)
+            if tar -tf "$FILE" | grep -q "$MAINTSCRIPT_DIR/postinst"; then
+                tar -xvzf "$FILE" -C "$MODULE_DIR" "./$MAINTSCRIPT_DIR/postinst"
+
+                find "$MODULE_DIR" -type f -name "postinst" -perm 755 -exec {} \;
+            fi
+            
+        elif unzip -t "$FILE" >/dev/null 2>&1; then
+            #
+            # zip
+            #
+            log "Unpacking zip file"
+            log "TODO: zip files are not yet supported"
+            exit $EXIT_FAILURE
+            unzip "$FILE" -d "$ROOT_DIR" -x "$POST_FILE"
+        else
+            log "Unknown file format. Only gzips and zip files are supported"
+            exit "$EXIT_FAILURE"
+        fi
+
+        # Store marker of the tarball
+        sha256sum "$FILE" | cut -d' ' -f1 > "$MODULE_DIR/sha256"
+        printf '%s\t%s' "$MODULE_NAME" "$MODULE_VERSION" > "$MODULE_DIR/package"
+        ;;
+    remove)
+        # Remove module
+        MODULE_DIR="$(get_module_dir)"
+        if [ -f "$MODULE_DIR/files" ]; then
+            # cd "$ROOT_DIR"
+            while read -r package_file; do
+                if [ -f "$package_file" ]; then
+                    log "Removing package file: $package_file"
+                    rm -f "$package_file"
+                fi
+            done < "$MODULE_DIR/files"
+        fi
+
+        rm -rf "$MODULE_DIR"
+        ;;
+    update-list)
+        # Not supported, use remove install and remove instead
+        exit "$EXIT_USAGE"
+        ;;
+    finalize)
+        ;;
+    *)
+        log "Unsupported command: $COMMAND"
+        exit 1
+        ;;
+esac
+
+exit "$EXIT_OK"
