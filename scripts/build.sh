@@ -33,25 +33,26 @@ fi
 # Download tedge
 cd ../../
 
-TEDGE_VERSION="1.1.2-rc139+g4e94ab6"
+TEDGE_VERSION="1.2.0"
+TEDGE_CHANNEL=release
 case "$TARGET" in
     aarch64-linux-musl)
-        TEDGE_URL="https://dl.cloudsmith.io/public/thinedge/tedge-main/raw/names/tedge-arm64/versions/$TEDGE_VERSION/tedge.tar.gz"
+        TEDGE_URL="https://dl.cloudsmith.io/public/thinedge/tedge-${TEDGE_CHANNEL}/raw/names/tedge-arm64/versions/$TEDGE_VERSION/tedge.tar.gz"
         ;;
     arm-linux-musleabihf)
-        TEDGE_URL="https://dl.cloudsmith.io/public/thinedge/tedge-main/raw/names/tedge-armv7/versions/$TEDGE_VERSION/tedge.tar.gz"
+        TEDGE_URL="https://dl.cloudsmith.io/public/thinedge/tedge-${TEDGE_CHANNEL}/raw/names/tedge-armv7/versions/$TEDGE_VERSION/tedge.tar.gz"
         ;;
     arm-linux-musleabi)
-        TEDGE_URL="https://dl.cloudsmith.io/public/thinedge/tedge-main/raw/names/tedge-armv5/versions/$TEDGE_VERSION/tedge.tar.gz"
+        TEDGE_URL="https://dl.cloudsmith.io/public/thinedge/tedge-${TEDGE_CHANNEL}/raw/names/tedge-armv5/versions/$TEDGE_VERSION/tedge.tar.gz"
         ;;
     x86_64-linux)
-        TEDGE_URL="https://dl.cloudsmith.io/public/thinedge/tedge-main/raw/names/tedge-amd64/versions/$TEDGE_VERSION/tedge.tar.gz"
+        TEDGE_URL="https://dl.cloudsmith.io/public/thinedge/tedge-${TEDGE_CHANNEL}/raw/names/tedge-amd64/versions/$TEDGE_VERSION/tedge.tar.gz"
         ;;
     x86-linux)
-        TEDGE_URL="https://dl.cloudsmith.io/public/thinedge/tedge-main/raw/names/tedge-i386/versions/$TEDGE_VERSION/tedge.tar.gz"
+        TEDGE_URL="https://dl.cloudsmith.io/public/thinedge/tedge-${TEDGE_CHANNEL}/raw/names/tedge-i386/versions/$TEDGE_VERSION/tedge.tar.gz"
         ;;
     riscv64-linux)
-        TEDGE_URL="https://dl.cloudsmith.io/public/thinedge/tedge-main/raw/names/tedge-riscv64/versions/$TEDGE_VERSION/tedge.tar.gz"
+        TEDGE_URL="https://dl.cloudsmith.io/public/thinedge/tedge-${TEDGE_CHANNEL}/raw/names/tedge-riscv64/versions/$TEDGE_VERSION/tedge.tar.gz"
         ;;
     *)
         echo "Unsupported target. No thin-edge.io binary is available for this target. $TARGET" >&2
