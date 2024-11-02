@@ -2,7 +2,13 @@
 touch "/var/log/tedge-agent.log"
 DAEMON_USER="root"
 LOG_FILE="/var/log/tedge-agent.log"
-PIDFILE="/run/lock/tedge-agent.lock"
+LOCK_DIR=/var/run/lock
+if [ -d /var/run ]; then
+    LOCK_DIR=/var/run/lock
+elif [ -d /run/lock ]; then
+    LOCK_DIR=/run/lock
+fi
+PIDFILE="$LOCK_DIR/tedge-agent.lock"
 BIN="@CONFIG_DIR@/bin"
 CONFIG_DIR="@CONFIG_DIR@"
 
@@ -13,8 +19,8 @@ if [ -f "$CONFIG_DIR/env" ]; then
     set +a
 fi
 
-mkdir -p /run/lock
-chown 1777 /run/lock
+mkdir -p "$LOCK_DIR"
+chown 1777 "$LOCK_DIR"
 touch "$PIDFILE"
 "$BIN/tedge" init --user root --group root ||:
 
