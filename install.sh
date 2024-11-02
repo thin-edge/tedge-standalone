@@ -26,6 +26,8 @@ EXAMPLE
     $0 --install-path /custom
     # Install under a custom location
 
+    $0 --file ./tedge-standalone-arm64.tar.gz --install-path /home/root
+    # Install from a manually downloaded file and install under a custom path
 EOT
 }
 
