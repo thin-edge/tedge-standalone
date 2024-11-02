@@ -3,6 +3,7 @@ set -e
 
 INSTALL_PATH="${INSTALL_PATH:-/data}"
 VERSION="${VERSION:-0.1.0}"
+INSTALL_FILE="${INSTALL_FILE:-}"
 
 usage() {
     cat << EOT
@@ -15,6 +16,7 @@ USAGE
 ARGUMENTS
   --install-path <path>         Install path. Defaults to $INSTALL_PATH
   --version <version>           Version to install. Defaults to $VERSION
+  --file <path>                 Install from a file instead of downloading it
 
 EXAMPLE
 
@@ -31,6 +33,10 @@ while [ $# -gt 0 ]; do
     case "$1" in
         --install-path)
             INSTALL_PATH="$2"
+            shift
+            ;;
+        --file)
+            INSTALL_FILE="$2"
             shift
             ;;
         --version)
@@ -59,7 +65,14 @@ update_install_path() {
     find "$src" -type f -exec sed -i s%@CONFIG_DIR@%"${value}"% {} \;
 }
 
-main() {
+install_from_file() {
+    install_file="$1"
+    mkdir -p "$INSTALL_PATH"
+    echo "Installing thin-edge.io to $INSTALL_PATH/tedge"
+    tar xzf "$install_file" -C "$INSTALL_PATH"
+}
+
+install_from_web() {
     ARCH=$(uname -m)
     TARGET_ARCH=
     case "$ARCH" in
@@ -86,11 +99,20 @@ main() {
 
     cd /tmp
     wget -q "https://github.com/thin-edge/tedge-standalone/releases/download/$VERSION/tedge-standalone-${TARGET_ARCH}.tar.gz"
-
     mkdir -p "$INSTALL_PATH"
     echo "Installing thin-edge.io to $INSTALL_PATH/tedge"
     tar xzf /tmp/tedge-standalone-*.tar.gz -C "$INSTALL_PATH"
     rm -f /tmp/tedge-standalone-*.tar.gz
+}
+
+main() {
+    if [ -f "$INSTALL_FILE" ]; then
+        echo "Installing from file: $INSTALL_FILE" >&2
+        install_from_file "$INSTALL_FILE"
+    else
+        echo "Installing from url" >&2
+        install_from_web
+    fi
 
     # Replace reference to installation path
     update_install_path "$INSTALL_PATH/tedge" "$INSTALL_PATH/tedge"
