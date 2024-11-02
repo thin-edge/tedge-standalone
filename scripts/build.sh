@@ -90,7 +90,7 @@ case "$TARGET" in
         TEDGE_URL="https://dl.cloudsmith.io/public/thinedge/tedge-${TEDGE_CHANNEL}/raw/names/tedge-armv7/versions/$TEDGE_VERSION/tedge.tar.gz"
         ;;
     arm-linux-musleabi)
-        TEDGE_URL="https://dl.cloudsmith.io/public/thinedge/tedge-${TEDGE_CHANNEL}/raw/names/tedge-armv5/versions/$TEDGE_VERSION/tedge.tar.gz"
+        TEDGE_URL="https://dl.cloudsmith.io/public/thinedge/tedge-${TEDGE_CHANNEL}-armv6/raw/names/tedge-armv6/versions/$TEDGE_VERSION/tedge.tar.gz"
         ;;
     x86_64-linux)
         TEDGE_URL="https://dl.cloudsmith.io/public/thinedge/tedge-${TEDGE_CHANNEL}/raw/names/tedge-amd64/versions/$TEDGE_VERSION/tedge.tar.gz"
