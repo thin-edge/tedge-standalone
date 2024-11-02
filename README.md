@@ -44,14 +44,11 @@ Run the `bootstrap.sh` script to run the bootstrap process to create a certifica
 Alternatively, you can do the bootstrapping yourself but running the following commands:
 
 ```sh
-. /data/tedge/env
-tedge-cli cert create --device-id "mydeviceid"
-tedge-cli config set c8y.url "<myurl>"
-tedge-cli cert upload c8y --user "<myuser>"
+set -a; . /data/tedge/env; set +a
+tedge cert create --device-id "mydeviceid"
+tedge config set c8y.url "<myurl>"
+tedge cert upload c8y --user "<myuser>"
 ```
-
-Where `tedge-cli` is a custom wrapper around `tedge` which sets the custom configuration directory for you from the `CONFIG_DIR` environment variable, via `--config-dir "$CONFIG_DIR"`. The `tedge-cli` wrapper can be removed once the following ticket this ticket is implemented, https://github.com/thin-edge/thin-edge.io/issues/1794.
-
 
 ## ca-certificates
 
@@ -64,7 +61,7 @@ The standalone installation includes an existing **ca-certificates.crt** file wh
 Assuming you have already bootstrapped the device (e.g. configured the Cumulocity IoT instance, and uploaded the device certificate), then you need to add the following lines to your startup routine:
 
 ```sh
-. /data/tedge/env
+set -a; . /data/tedge/env; set +a
 mkdir -p "$SVDIR"
 tedgectl enable mosquitto
 tedgectl enable tedge-agent
@@ -72,8 +69,8 @@ tedgectl enable tedge-mapper-c8y
 runsvdir -P "$SVDIR/" &
 
 sleep 5
-MESSAGE=$(printf '{"text": "tedge started up 🚀 version=%s"}' "$(tedge-cli --version | cut -d' ' -f2)")
-tedge-cli mqtt pub --qos 1 "te/device/main///e/startup" "$MESSAGE"
+MESSAGE=$(printf '{"text": "tedge started up 🚀 version=%s"}' "$(tedge --version | cut -d' ' -f2)")
+tedge mqtt pub --qos 1 "te/device/main///e/startup" "$MESSAGE"
 ```
 
 Then reboot device to check if the services are started correctly.
@@ -84,10 +81,15 @@ Then reboot device to check if the services are started correctly.
 
 Assuming you have already launched the custom `runsvdir` instance, the following commands can be used to manage the thin-edge.io related services. The commands use a wrapper (`tedgectl`) around the **runit** commands for convenience (and `tedgectl` is used in the init system integration defined in the `system.toml` file).
 
+Before running any of the command you need to load the environment variables using the following one-liner:
+
+```sh
+set -a; . /data/tedge/env; set +a
+```
+
 ### Start services
 
 ```sh
-. /data/tedge/env
 tedgectl start tedge-agent
 tedgectl start tedge-mapper-c8y
 tedgectl start mosquitto
@@ -96,7 +98,6 @@ tedgectl start mosquitto
 ### Stop services
 
 ```sh
-. /data/tedge/env
 tedgectl stop tedge-agent
 tedgectl stop tedge-mapper-c8y
 tedgectl stop mosquitto
@@ -107,7 +108,6 @@ tedgectl stop mosquitto
 Enable services so they automatically run on startup.
 
 ```sh
-. /data/tedge/env
 tedgectl enable mosquitto
 tedgectl enable tedge-agent
 tedgectl enable tedge-mapper-c8y
@@ -119,7 +119,6 @@ tedgectl enable tedge-mapper-c8y
 Disable services so they don't automatically run on startup.
 
 ```sh
-. /data/tedge/env
 tedgectl disable mosquitto
 tedgectl disable tedge-agent
 tedgectl disable tedge-mapper-c8y

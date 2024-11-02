@@ -53,6 +53,12 @@ while [ $# -gt 0 ]; do
     shift
 done
 
+update_install_path() {
+    src="$1"
+    value="$2"
+    find "$src" -type f -exec sed -i s%@CONFIG_DIR@%"${value}"% {} \;
+}
+
 main() {
     ARCH=$(uname -m)
     TARGET_ARCH=
@@ -85,6 +91,9 @@ main() {
     echo "Installing thin-edge.io to $INSTALL_PATH/tedge"
     tar xzf /tmp/tedge-standalone-*.tar.gz -C "$INSTALL_PATH"
     rm -f /tmp/tedge-standalone-*.tar.gz
+
+    # Replace reference to installation path
+    update_install_path "$INSTALL_PATH/tedge" "$INSTALL_PATH/tedge"
 
     echo
     echo "Configure and start thin-edge.io using the following command:"

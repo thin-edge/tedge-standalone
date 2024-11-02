@@ -1,10 +1,10 @@
 #!/bin/sh
 set -e
 
-if [ -f /data/tedge/env ]; then
+if [ -f @CONFIG_DIR@/env ]; then
     set -a
     # shellcheck disable=SC1091
-    . /data/tedge/env
+    . @CONFIG_DIR@/env
     set +a
 fi
 

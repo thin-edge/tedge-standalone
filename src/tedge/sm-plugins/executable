@@ -1,9 +1,9 @@
 #!/bin/sh
 set -e
-if [ -f /data/tedge/env ]; then
+if [ -f @CONFIG_DIR@/env ]; then
     set -a
     # shellcheck disable=SC1091
-    . /data/tedge/env
+    . @CONFIG_DIR@/env
     set +a
 fi
 
@@ -84,8 +84,8 @@ case "$COMMAND" in
         printf 'tedge\t%s\n' "$(tedge --version | cut -d' ' -f2)"
 
         # mosquitto
-        if [ -x /data/tedge/bin/mosquitto ]; then
-            mosquitto_version=$(/data/tedge/bin/mosquitto -h | head -n1 | cut -d' ' -f3)
+        if [ -x @CONFIG_DIR@/bin/mosquitto ]; then
+            mosquitto_version=$(@CONFIG_DIR@/bin/mosquitto -h | head -n1 | cut -d' ' -f3)
             printf 'mosquitto\t%s\n' "$mosquitto_version"
         fi
         ;;
@@ -96,8 +96,8 @@ case "$COMMAND" in
                 log "Failed to run new binary. tmpfile=$FILE"
                 exit "$EXIT_FAILURE"
             fi
-            log "Moving binary from $FILE to /data/tedge/bin/${MODULE_NAME}"
-            mv "$FILE" "/data/tedge/bin/${MODULE_NAME}"
+            log "Moving binary from $FILE to @CONFIG_DIR@/bin/${MODULE_NAME}"
+            mv "$FILE" "@CONFIG_DIR@/bin/${MODULE_NAME}"
         else
             log "Installing a binary without providing the url is not supported: MODULE_NAME=$MODULE_NAME, MODULE_VERSION=$MODULE_VERSION, FILE=$FILE"
             exit "$EXIT_FAILURE"

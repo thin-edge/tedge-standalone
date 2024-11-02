@@ -2,12 +2,12 @@
 set -e
 
 export SVDIR="${SVDIR:-/run/services}"
-export RUNIT_SRCDIR="${RUNIT_SRCDIR:-/data/tedge/services}"
+export RUNIT_SRCDIR="${RUNIT_SRCDIR:-@CONFIG_DIR@/services}"
 
-if [ -f /data/tedge/env ]; then
+if [ -f @CONFIG_DIR@/env ]; then
     set -a
     # shellcheck disable=SC1091
-    . /data/tedge/env
+    . @CONFIG_DIR@/env
     set +a
 fi
 

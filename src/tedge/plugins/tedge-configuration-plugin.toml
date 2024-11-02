@@ -1,21 +1,21 @@
 [[files]]
-path = "/data/tedge/tedge.toml"
+path = "@CONFIG_DIR@/tedge.toml"
 type = "tedge.toml"
 
 [[files]]
-path = "/data/tedge/system.toml"
+path = "@CONFIG_DIR@/system.toml"
 type = "system.toml"
 
 [[files]]
 group = "root"
 user = "root"
 mode = 0o644
-path = "/data/tedge/plugins/tedge-log-plugin.toml"
+path = "@CONFIG_DIR@/plugins/tedge-log-plugin.toml"
 type = "tedge-log-plugin"
 
 [[files]]
 group = "root"
 user = "root"
 mode = 0o644
-path = "/data/tedge/ca-certificates.crt"
+path = "@CONFIG_DIR@/ca-certificates.crt"
 type = "ca-certificates"

@@ -1,4 +1,4 @@
 [exec]
 topic = "c8y/s/ds"
 on_message = "511"
-command = "/data/tedge/bin/c8y-command"
+command = "@CONFIG_DIR@/bin/c8y-command"
