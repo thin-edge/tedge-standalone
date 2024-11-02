@@ -1,6 +1,55 @@
 #!/usr/bin/env bash
-set -ex
+set -e
+
+if [ -n "$CI" ]; then
+    set -x
+fi
+
 TARGET="$1"
+TARGET_NAME="$2"
+PACKAGE="${PACKAGE:-}"
+TEDGE_VERSION="${TEDGE_VERSION:-}"
+TEDGE_CHANNEL="${TEDGE_CHANNEL:-}"
+
+while [ $# -gt 0 ]; do
+    case "$1" in
+        --target)
+            TARGET="$2"
+            shift
+            ;;
+        --target-name)
+            TARGET_NAME="$2"
+            shift
+            ;;
+        --package)
+            PACKAGE="$2"
+            shift
+            ;;
+        --tedge-version)
+            TEDGE_VERSION="$2"
+            shift
+            ;;
+        --tedge-channel)
+            TEDGE_CHANNEL="$2"
+            shift
+            ;;
+    esac
+    shift
+done
+
+# Guess the channel from the syntax, defaulting to the release channel
+if [ -z "${TEDGE_CHANNEL}" ]; then
+    if [ -z "$TEDGE_VERSION" ] || [[ "$TEDGE_VERSION" =~ ^\d+\.\d+\.\d+$ ]]; then
+        TEDGE_CHANNEL=release
+    else
+        TEDGE_CHANNEL=main
+    fi
+fi
+
+if [ -z "$TEDGE_VERSION" ]; then
+    # get the latest version (use any architecture as they should all be the same)
+    TEDGE_VERSION=$(curl -s "https://dl.cloudsmith.io/public/thinedge/tedge-${TEDGE_CHANNEL}/raw/names/tedge-arm64/versions/latest/tedge.tar.gz" --write-out '%{redirect_url}' | rev | cut -d/ -f2 | rev)
+fi
 
 SKIP_UPX=0
 if [ "$TARGET" = "riscv64-linux" ]; then
@@ -33,8 +82,6 @@ fi
 # Download tedge
 cd ../../
 
-TEDGE_VERSION="1.2.0"
-TEDGE_CHANNEL=release
 case "$TARGET" in
     aarch64-linux-musl)
         TEDGE_URL="https://dl.cloudsmith.io/public/thinedge/tedge-${TEDGE_CHANNEL}/raw/names/tedge-arm64/versions/$TEDGE_VERSION/tedge.tar.gz"
@@ -70,3 +117,24 @@ if [ "$SKIP_UPX" -ne 1 ]; then
         upx --lzma --best "tedge-$TARGET"
     fi
 fi
+
+cp "binaries/zig-mosquitto/zig-out/bin/mosquitto-${TARGET}" src/tedge/bin/mosquitto
+cp "tedge-${TARGET}" src/tedge/bin/tedge
+
+TAR="tar"
+if command -V gtar >/dev/null 2>&1; then
+    TAR="gtar"
+fi
+
+OUTPUT_FILE="${PACKAGE}-${TARGET_NAME}.tar.gz"
+
+"$TAR" czvf "$OUTPUT_FILE" --owner=0 --group=0 --no-same-owner --no-same-permissions -C src ./tedge
+
+echo
+echo "Built package:"
+echo
+echo "  TEDGE_CHANNEL: $TEDGE_CHANNEL"
+echo "  TEDGE_VERSION: $TEDGE_VERSION"
+echo
+echo "  FILE:          $OUTPUT_FILE"
+echo
