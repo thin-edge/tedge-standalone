@@ -64,7 +64,7 @@ done
 update_install_path() {
     src="$1"
     value="$2"
-    find "$src" -type f -exec sed -i s%@CONFIG_DIR@%"${value}"% {} \;
+    find "$src" -type f -exec sed -i s%@CONFIG_DIR@%"${value}"%g {} \;
 }
 
 install_from_file() {
