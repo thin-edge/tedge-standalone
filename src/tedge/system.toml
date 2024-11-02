@@ -1,11 +1,11 @@
 [init]
 name = "tedgectl"
-is_available = ["/data/tedge/bin/tedgectl", "is_available"]
-restart = ["/data/tedge/bin/tedgectl", "restart", "{}"]
-stop =  ["/data/tedge/bin/tedgectl", "stop", "{}"]
-enable =  ["/data/tedge/bin/tedgectl", "enable", "{}"]
-disable =  ["/data/tedge/bin/tedgectl", "disable", "{}"]
-is_active = ["/data/tedge/bin/tedgectl", "is_active", "{}"]
+is_available = ["@CONFIG_DIR@/bin/tedgectl", "is_available"]
+restart = ["@CONFIG_DIR@/bin/tedgectl", "restart", "{}"]
+stop =  ["@CONFIG_DIR@/bin/tedgectl", "stop", "{}"]
+enable =  ["@CONFIG_DIR@/bin/tedgectl", "enable", "{}"]
+disable =  ["@CONFIG_DIR@/bin/tedgectl", "disable", "{}"]
+is_active = ["@CONFIG_DIR@/bin/tedgectl", "is_active", "{}"]
 
 [system]
 reboot = ["sh", "-c", "sync; sync; sleep 2; reboot"]

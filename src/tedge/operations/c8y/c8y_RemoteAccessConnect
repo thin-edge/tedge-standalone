@@ -1,4 +1,4 @@
 [exec]
-command = "/data/tedge/bin/c8y-remote-access-plugin --config-dir /data/tedge"
+command = "@CONFIG_DIR@/bin/c8y-remote-access-plugin --config-dir @CONFIG_DIR@"
 topic = "c8y/s/ds"
 on_message = "530"

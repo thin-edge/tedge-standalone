@@ -2,24 +2,30 @@
 touch "/var/log/mosquitto.log"
 DAEMON_USER="root"
 LOG_FILE="/var/log/mosquitto.log"
-PIDFILE="/run/lock/mosquitto.lock"
-BIN="/data/tedge/bin"
-CONFIG_DIR="/data/tedge"
+LOCK_DIR=/var/run/lock
+if [ -d /var/run ]; then
+    LOCK_DIR=/var/run/lock
+elif [ -d /run/lock ]; then
+    LOCK_DIR=/run/lock
+fi
+PIDFILE="$LOCK_DIR/mosquitto.lock"
+BIN="@CONFIG_DIR@/bin"
+CONFIG_DIR="@CONFIG_DIR@"
 
-if [ -f /data/tedge/env ]; then
+if [ -f "$CONFIG_DIR/env" ]; then
     set -a
     # shellcheck disable=SC1091
-    . /data/tedge/env
+    . "$CONFIG_DIR/env"
     set +a
 fi
 
-mkdir -p /run/lock
-chown 1777 /run/lock
+mkdir -p "$LOCK_DIR"
+chown 1777 "$LOCK_DIR"
 touch "$PIDFILE"
-"$BIN/tedge" --config-dir "$CONFIG_DIR" init --user root --group root ||:
+"$BIN/tedge" init --user root --group root ||:
 
 if [ -n "$DAEMON_USER" ]; then
     chown "$DAEMON_USER" "$PIDFILE"
     chown "$DAEMON_USER" "/var/log/mosquitto.log"
 fi
-exec chpst -u "$DAEMON_USER" "$BIN/mosquitto" -c /data/tedge/mosquitto.conf >> "$LOG_FILE" 2>&1
+exec chpst -u "$DAEMON_USER" "$BIN/mosquitto" -c @CONFIG_DIR@/mosquitto.conf >> "$LOG_FILE" 2>&1

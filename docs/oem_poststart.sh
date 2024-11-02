@@ -24,14 +24,4 @@ fi
 /etc/init.d/sshd start ||:
 
 # start thin-edge.io
-. /data/tedge/env
-mkdir -p "$SVDIR"
-tedgectl enable mosquitto
-tedgectl enable tedge-agent
-tedgectl enable tedge-mapper-c8y
-runsvdir -P "$SVDIR/" &
-
-# optional: Send event to cloud to indicate that thin-edge.io is running
-sleep 5
-MESSAGE=$(printf '{"text": "tedge started up 🚀 version=%s"}' "$(tedge-cli --version | cut -d' ' -f2)")
-tedge-cli mqtt pub --qos 1 "te/device/main///e/startup" "$MESSAGE"
+@CONFIG_DIR@/bootstrap.sh

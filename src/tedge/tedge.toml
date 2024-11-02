@@ -2,7 +2,7 @@
 version = "2"
 
 [c8y]
-root_cert_path = "/data/tedge/ca-certificates.crt"
+root_cert_path = "@CONFIG_DIR@/ca-certificates.crt"
 
 [c8y.proxy.client]
 host = "127.0.0.1"
