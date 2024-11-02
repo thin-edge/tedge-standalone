@@ -61,16 +61,7 @@ The standalone installation includes an existing **ca-certificates.crt** file wh
 Assuming you have already bootstrapped the device (e.g. configured the Cumulocity IoT instance, and uploaded the device certificate), then you need to add the following lines to your startup routine:
 
 ```sh
-set -a; . /data/tedge/env; set +a
-mkdir -p "$SVDIR"
-tedgectl enable mosquitto
-tedgectl enable tedge-agent
-tedgectl enable tedge-mapper-c8y
-runsvdir -P "$SVDIR/" &
-
-sleep 5
-MESSAGE=$(printf '{"text": "tedge started up 🚀 version=%s"}' "$(tedge --version | cut -d' ' -f2)")
-tedge mqtt pub --qos 1 "te/device/main///e/startup" "$MESSAGE"
+/data/tedge/bootstrap.sh
 ```
 
 Then reboot device to check if the services are started correctly.
@@ -134,6 +125,6 @@ For example, the [tedge-armv7](https://cloudsmith.io/~thinedge/repos/tedge-main/
 ```sh
 c8y software get --id tedge || c8y software create --name tedge --data softwareType=executable
 
-# Sele
+# Add a new version for installation
 c8y software versions create --software tedge --version "1.1.2-rc135+gf35f1f1" --url "https://dl.cloudsmith.io/public/thinedge/tedge-main/raw/names/tedge-armv7/versions/1.1.2-rc135+gf35f1f1/tedge.tar.gz"
 ```
