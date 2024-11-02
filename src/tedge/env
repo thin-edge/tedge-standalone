@@ -1,5 +1,5 @@
 SSL_CERT_FILE=@CONFIG_DIR@/ca-certificates.crt
 SVDIR=/run/services
 RUNIT_SRCDIR=@CONFIG_DIR@/services
-CONFIG_DIR=@CONFIG_DIR@
+TEDGE_CONFIG_DIR=@CONFIG_DIR@
 PATH=@CONFIG_DIR@/bin:/sbin:/bin:/usr/sbin:/usr/bin
