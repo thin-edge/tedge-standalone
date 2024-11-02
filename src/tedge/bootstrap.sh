@@ -41,12 +41,12 @@ fi
 #
 if command -V runsvdir >/dev/null 2>&1; then
     if ! grep -q '^SVDIR=' @CONFIG_DIR@/env; then
-        echo "SVDIR=$SVDIR" >> "@CONFIG_DIR@/env"
         if [ -d /var/run ]; then
             SVDIR=/var/run/services
         elif [ -d /run ]; then
             SVDIR=/run/services
         fi
+        echo "SVDIR=$SVDIR" >> "@CONFIG_DIR@/env"
         export SVDIR
     fi
 
@@ -64,7 +64,7 @@ if command -V runsvdir >/dev/null 2>&1; then
     fi
 
     sleep 5
-    MESSAGE=$(printf '{"text": "tedge started up 🚀 version=%s"}' "$(c --version | cut -d' ' -f2)")
+    MESSAGE=$(printf '{"text": "tedge started up 🚀 version=%s"}' "$(tedge --version | cut -d' ' -f2)")
     tedge mqtt pub --qos 1 "te/device/main///e/startup" "$MESSAGE"
 fi
 
