@@ -36,6 +36,38 @@ if [ -z "$(tedge config get c8y.url 2>/dev/null)" ]; then
     tedge connect c8y
 fi
 
+#
+# Configure services if runit is installed
+#
+if command -V runsvdir >/dev/null 2>&1; then
+    if ! grep -q '^SVDIR=' @CONFIG_DIR@/env; then
+        echo "SVDIR=$SVDIR" >> "@CONFIG_DIR@/env"
+        if [ -d /var/run ]; then
+            SVDIR=/var/run/services
+        elif [ -d /run ]; then
+            SVDIR=/run/services
+        fi
+        export SVDIR
+    fi
+
+    mkdir -p "$SVDIR"
+    tedgectl enable mosquitto
+    tedgectl enable tedge-agent
+    tedgectl enable tedge-mapper-c8y
+
+    # Start runit in the background
+    if ! pgrep -f "runsvdir -P $SVDIR" >/dev/null 2>&1; then
+        echo "Starting services using runit: runsvdir -P \"$SVDIR/\" &" >&2
+        runsvdir -P "$SVDIR/" &
+    else
+        echo "Services are already running via: runsvdir -P \"$SVDIR\""
+    fi
+
+    sleep 5
+    MESSAGE=$(printf '{"text": "tedge started up 🚀 version=%s"}' "$(c --version | cut -d' ' -f2)")
+    tedge mqtt pub --qos 1 "te/device/main///e/startup" "$MESSAGE"
+fi
+
 # Show info to user about important connection settings
 DEVICE_ID="$(tedge config get device.id 2>/dev/null)"
 C8Y_URL="$(tedge config get c8y.url 2>/dev/null)"

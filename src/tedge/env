@@ -1,5 +1,7 @@
 SSL_CERT_FILE=@CONFIG_DIR@/ca-certificates.crt
-SVDIR=/run/services
+# SVDIR is set via the bootstrap.sh script as it should be set to a volatile location
+# which usually differs across different environments
+#SVDIR=/run/services
 RUNIT_SRCDIR=@CONFIG_DIR@/services
 TEDGE_CONFIG_DIR=@CONFIG_DIR@
 PATH=@CONFIG_DIR@/bin:/sbin:/bin:/usr/sbin:/usr/bin
