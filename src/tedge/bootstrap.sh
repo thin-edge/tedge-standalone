@@ -40,11 +40,16 @@ fi
 # Configure services if runit is installed
 #
 if command -V runsvdir >/dev/null 2>&1; then
-    if ! grep -q '^SVDIR=' @CONFIG_DIR@/env; then
+    if ! grep -q '^SVDIR=/.*' @CONFIG_DIR@/env; then
         if [ -d /var/run ]; then
             SVDIR=/var/run/services
         elif [ -d /run ]; then
             SVDIR=/run/services
+        elif [ -d /tmp ]; then
+            SVDIR=/tmp/services
+        else
+            echo "Could not find a volatile directory for the runit services" >&2
+            exit 1
         fi
         echo "SVDIR=$SVDIR" >> "@CONFIG_DIR@/env"
         export SVDIR
@@ -66,6 +71,8 @@ if command -V runsvdir >/dev/null 2>&1; then
     sleep 5
     MESSAGE=$(printf '{"text": "tedge started up 🚀 version=%s"}' "$(tedge --version | cut -d' ' -f2)")
     tedge mqtt pub --qos 1 "te/device/main///e/startup" "$MESSAGE"
+else
+    echo "WARNING: Could not start services as 'runsvdir' is not installed. You will need to start the services yourself" >&2
 fi
 
 # Show info to user about important connection settings
