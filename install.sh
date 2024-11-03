@@ -4,6 +4,7 @@ set -e
 INSTALL_PATH="${INSTALL_PATH:-/data}"
 VERSION="${VERSION:-0.2.0}"
 INSTALL_FILE="${INSTALL_FILE:-}"
+OVERWRITE_CONFIG=0
 
 usage() {
     cat << EOT
@@ -17,14 +18,18 @@ ARGUMENTS
   --install-path <path>         Install path. Defaults to $INSTALL_PATH
   --version <version>           Version to install. Defaults to $VERSION
   --file <path>                 Install from a file instead of downloading it
+  --overwrite                   Overwrite any existing configuration
 
 EXAMPLE
 
     $0
     # Install with default settings
 
-    $0 --install-path /custom
+    $0 --install-path /data
     # Install under a custom location
+
+    $0 --install-path /home/etc --overwrite
+    # Install under a custom location and overrite any existing configuration files
 
     $0 --file ./tedge-standalone-arm64.tar.gz --install-path /home/root
     # Install from a manually downloaded file and install under a custom path
@@ -44,6 +49,9 @@ while [ $# -gt 0 ]; do
         --version)
             VERSION="$2"
             shift
+            ;;
+        --overwrite)
+            OVERWRITE_CONFIG=1
             ;;
         --help|-h)
             usage
@@ -107,6 +115,14 @@ install_from_web() {
     rm -f /tmp/tedge-standalone-*.tar.gz
 }
 
+move_if_target_file_missing() {
+    SRC="$INSTALL_PATH/tedge/$1"
+    DST="$INSTALL_PATH/tedge/$2"
+    if [ ! -f "$DST" ]; then
+        mv "$SRC" "$DST"
+    fi
+}
+
 main() {
     if [ -f "$INSTALL_FILE" ]; then
         echo "Installing from file: $INSTALL_FILE" >&2
@@ -118,6 +134,17 @@ main() {
 
     # Replace reference to installation path
     update_install_path "$INSTALL_PATH/tedge" "$INSTALL_PATH/tedge"
+
+    # Update the file if it does not already exist (this will only occur once)
+    # after that, the user must move it themselves
+    if [ "$OVERWRITE_CONFIG" = 1 ]; then
+        echo "Overwriting any existing configuration" >&2
+        mv "$INSTALL_PATH/tedge/tedge.default.toml" "$INSTALL_PATH/tedge/tedge.toml"
+        mv "$INSTALL_PATH/tedge/system.default.toml" "$INSTALL_PATH/tedge/system.toml"
+    else
+        move_if_target_file_missing "tedge.default.toml" "tedge.toml"
+        move_if_target_file_missing "system.default.toml" "system.toml"
+    fi
 
     echo
     echo "Configure and start thin-edge.io using the following command:"
