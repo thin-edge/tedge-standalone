@@ -27,8 +27,7 @@ MODULE_VERSION=
 FILE=
 
 # Path to the root directory
-ROOT_DIR=/data
-ARCHIVE_SOFTWARE_DIR="$ROOT_DIR/.tedge-archive-plugin"
+ARCHIVE_ROOT_DIR=/data
 MAINTSCRIPT_DIR=SCRIPTS
 
 log() { echo "$@" >&2; }
@@ -71,7 +70,7 @@ done
 
 # Only read the file if it has the correct permissions, to prevent people from editing it
 # and side-loading functions
-SETTINGS_FILE=/etc/tedge-archive-plugin/env
+SETTINGS_FILE=@CONFIG_DIR@/env
 FOUND_FILE=
 if [ -f "$SETTINGS_FILE" ]; then
     FOUND_FILE=$(find "$SETTINGS_FILE" -perm 644 | head -1)
@@ -83,15 +82,19 @@ if [ -n "$FOUND_FILE" ]; then
     . "$SETTINGS_FILE"
 fi
 
+get_software_dir() {
+    echo "$ARCHIVE_ROOT_DIR/.tedge-archive-plugin"
+}
+
 get_module_dir() {
-    echo "$ARCHIVE_SOFTWARE_DIR/${MODULE_NAME}@${MODULE_VERSION}"
+    echo "$(get_software_dir)/${MODULE_NAME}@${MODULE_VERSION}"
 }
 
 case "$COMMAND" in
     prepare)
         ;;
     list)
-        find "$ARCHIVE_SOFTWARE_DIR" -type f -name "package" | while read -r ITEM; do
+        find "$(get_software_dir)" -type f -name "package" | while read -r ITEM; do
             head -n1 "$ITEM"
         done
         ;;
@@ -110,7 +113,7 @@ case "$COMMAND" in
             # tarball/gzip
             #
             log "Unpacking tarball file"
-            mkdir -p "$ROOT_DIR"
+            mkdir -p "$ARCHIVE_ROOT_DIR"
 
             log "Unpacking maintainer scripts"
             # Run preinstall script (if found)
@@ -120,15 +123,15 @@ case "$COMMAND" in
             fi
 
             log "Unpacking files"
-            tar --exclude="./$MAINTSCRIPT_DIR/**" -xvzf "$FILE" -C "$ROOT_DIR"
+            tar --exclude="./$MAINTSCRIPT_DIR/**" -xvzf "$FILE" -C "$ARCHIVE_ROOT_DIR"
 
             # Store list of files which are included in the package so they can be uninstalled later on
             # by the user
 
-            # Note: When writing the list, the ROOT_DIR needs to be prefixed to the relative path
-            # so that the file path is fixed at install time to avoid problems incase if someone changes the ROOT_DIR
+            # Note: When writing the list, the ARCHIVE_ROOT_DIR needs to be prefixed to the relative path
+            # so that the file path is fixed at install time to avoid problems incase if someone changes the ARCHIVE_ROOT_DIR
             # and then tries to remove the package!
-            tar -tf "$FILE" | grep -v "$MAINTSCRIPT_DIR/" | grep -v '/$' | sed 's|^.|'"$ROOT_DIR"'|g' > "$MODULE_DIR/files"
+            tar -tf "$FILE" | grep -v "$MAINTSCRIPT_DIR/" | grep -v '/$' | sed 's|^.|'"$ARCHIVE_ROOT_DIR"'|g' > "$MODULE_DIR/files"
 
             # TODO: bsdtar list tar file contents output looks more like ls -l which includes meta information about each file
             # so it requires additional parsing with awk
@@ -148,7 +151,7 @@ case "$COMMAND" in
             log "Unpacking zip file"
             log "TODO: zip files are not yet supported"
             exit $EXIT_FAILURE
-            unzip "$FILE" -d "$ROOT_DIR" -x "$POST_FILE"
+            unzip "$FILE" -d "$ARCHIVE_ROOT_DIR" -x "$POST_FILE"
         else
             log "Unknown file format. Only gzips and zip files are supported"
             exit "$EXIT_FAILURE"
@@ -162,7 +165,6 @@ case "$COMMAND" in
         # Remove module
         MODULE_DIR="$(get_module_dir)"
         if [ -f "$MODULE_DIR/files" ]; then
-            # cd "$ROOT_DIR"
             while read -r package_file; do
                 if [ -f "$package_file" ]; then
                     log "Removing package file: $package_file"

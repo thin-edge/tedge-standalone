@@ -5,3 +5,6 @@ SSL_CERT_FILE=@CONFIG_DIR@/ca-certificates.crt
 RUNIT_SRCDIR=@CONFIG_DIR@/services
 TEDGE_CONFIG_DIR=@CONFIG_DIR@
 PATH=@CONFIG_DIR@/bin:/sbin:/bin:/usr/sbin:/usr/bin
+
+# archive sm-plugin config
+# ARCHIVE_ROOT_DIR=/data
