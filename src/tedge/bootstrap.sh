@@ -24,15 +24,28 @@ if [ -z "$(tedge config get c8y.url 2>/dev/null)" ]; then
         read -r C8Y_URL
     fi
 
+    C8Y_AUTH_METHOD=$(tedge config get c8y.auth_method ||:)
+    C8Y_CREDENTIALS_PATH=$(tedge config get c8y.credentials_path ||:)
+    NEEDS_CERT_UPLOAD=1
+    if [ "$C8Y_AUTH_METHOD" = "basic" ] || [ "$C8Y_AUTH_METHOD" = "auto" ]; then
+        if [ -f "$C8Y_CREDENTIALS_PATH" ]; then
+            echo "Using c8y.credentials_path as authentication" >&2
+            NEEDS_CERT_UPLOAD=0
+        fi
+    fi
+
     C8Y_URL=$(echo "$C8Y_URL" | sed 's|^https?://||g')
     echo "Setting c8y.url to $C8Y_URL"
     tedge config set c8y.url "$C8Y_URL"
 
-    if [ -z "$C8Y_USER" ]; then
-        printf "Enter your c8y username: "
-        read -r C8Y_USER
+    if [ "$NEEDS_CERT_UPLOAD" = 1 ]; then
+        if [ -z "$C8Y_USER" ]; then
+            printf "Enter your c8y username: "
+            read -r C8Y_USER
+        fi
+        tedge cert upload c8y --user "$C8Y_USER"
     fi
-    tedge cert upload c8y --user "$C8Y_USER"
+
     tedge connect c8y
 fi
 
