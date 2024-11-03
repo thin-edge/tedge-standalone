@@ -70,6 +70,16 @@ git submodule update --init --recursive
 cd binaries/zig-mosquitto
 ln -sf ../mosquitto mosquitto
 
+# patch zig-mosquitto to include mosquitto version
+# FIXME: This should be done by zig-mosquitto itself
+MOSQUITTO_VERSION=$(cd mosquitto && git tag --points-at HEAD | sed 's/^v//')
+echo "Setting mosquitto version from src tag: $MOSQUITTO_VERSION" >&2
+SED="sed"
+if command -V gsed >/dev/null 2>&1; then
+    SED="gsed"
+fi
+"$SED" -i 's|-DVERSION=\\\".*\\\"|-DVERSION=\\\"'"$MOSQUITTO_VERSION"'\\\"|g' build.zig
+
 $ZIG build -Doptimize=ReleaseSmall -Dtarget="$TARGET"
 mv zig-out/bin/mosquitto "zig-out/bin/mosquitto-$TARGET"
 
