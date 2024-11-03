@@ -3,6 +3,9 @@ version = "2"
 
 [c8y]
 root_cert_path = "@CONFIG_DIR@/ca-certificates.crt"
+# Use basic auth if credentials file is present, otherwise use certificates
+auth_method = "auto"
+credentials_path = "@CONFIG_DIR@/credentials"
 
 [az]
 root_cert_path = "@CONFIG_DIR@/ca-certificates.crt"
