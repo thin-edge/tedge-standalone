@@ -33,8 +33,21 @@ wget -q -O - https://raw.githubusercontent.com/thin-edge/tedge-standalone/main/i
 curl -fsSL https://raw.githubusercontent.com/thin-edge/tedge-standalone/main/install.sh | sh -s -- --install-path /data
 ```
 
-Then, follow the instructions printed out on the console to bootstrap (configure) and then start the services.
+Then, follow the instructions printed out on the console to bootstrap (configure) and then start the services. However if you are planning on using Cumulocity's basic authentication, then you need to run the following section before running the `bootstrap.sh` script.
 
+### Using Cumulocity basic authentication
+
+Before running the `boostrap.sh` script, you will need to set the device's credentials (username/password).
+
+For example, if you installed thin-edge.io under `/data` then you can set the credentials using the following snippet:
+
+```sh
+cat <<EOT > /data/tedge/credentials
+[c8y]
+username = "{tenant}/device_{external_id}"
+password = "{password}"
+EOT
+```
 
 ## Automatically starting services
 
