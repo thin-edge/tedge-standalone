@@ -10,9 +10,30 @@ fi
 # Init (also creating the multi-call binary symlinks)
 tedge init --user root --group root
 
+if [ $# -gt 0 ]; then
+    DEVICE_ID="$1"
+fi
+
+#
+# Detect authentication, get device.id from the credentials file
+#
+C8Y_AUTH_METHOD=$(tedge config get c8y.auth_method ||:)
+C8Y_CREDENTIALS_PATH=$(tedge config get c8y.credentials_path ||:)
+NEEDS_CERT_UPLOAD=1
+if [ "$C8Y_AUTH_METHOD" = "basic" ] || [ "$C8Y_AUTH_METHOD" = "auto" ]; then
+    if [ -f "$C8Y_CREDENTIALS_PATH" ]; then
+        DEVICE_ID=$(grep username "$C8Y_CREDENTIALS_PATH" | sed 's/username *= *"\(.*\)"/\1/' | cut -d/ -f2- | sed 's|^device_||')
+        echo "Using c8y.credentials_path as authentication. device.id=$DEVICE_ID" >&2
+        NEEDS_CERT_UPLOAD=0
+    fi
+fi
+
 # Check if a certificate already exists
 if [ -z "$(tedge config get device.id 2>/dev/null)" ]; then
-    tedge cert create --device-id "$(@CONFIG_DIR@/bin/tedge-identity 2>/dev/null)"
+    if [ -z "$DEVICE_ID" ]; then
+        DEVICE_ID=$(@CONFIG_DIR@/bin/tedge-identity 2>/dev/null)
+    fi
+    tedge cert create --device-id "$DEVICE_ID"
 fi
 
 # Show device certifcate
