@@ -1,21 +1,39 @@
 # Advantech
 
-## Run thin-edge.io at startup
+## Device: ECU150
 
-1. Remount the root filesystem as read/write (as it is normally mounted as read-only)
+1. Install thin-edge.io standalone
+
+    ```sh
+    wget -q -O - https://raw.githubusercontent.com/thin-edge/tedge-standalone/main/install.sh | sh -s -- --install-path /home/etc
+    ```
+
+2. Run the thin-edge.io bootstrap script
+
+    ```sh
+    /home/etc/tedge/bootstrap.sh
+    ```
+
+3. Remount the root filesystem as read/write (as it is normally mounted as read-only)
 
     ```sh
     mount -o rw,remount /
     ```
 
-2. Edit the `/etc/init.d/background.sh` script and add the following line (before the call to `exit`)
+4. Edit the `/etc/init.d/background.sh` script and add the following line (before the call to `exit`)
 
     ```sh
-    {{install_path}}/tedge/bootstrap.sh
+    sed '/exit 0/i \
+    /home/etc/tedge/bootstrap.sh' 2&> /dev/null \
+    /etc/init.d/background.sh
     ```
 
-    Where `{{install_path}}` should be replace with the path where thin-edge.io was installed. The full path to the bootstrap.sh script is printed out to the console when you installed thin-edge.io.
+    **Note**
+    
+    If the `/etc/init.d/background.sh` file does not exist, then you may need to create your own SysVInit file which launches the thin-edge.io bootstrap.sh script.
 
-    Note: If the `/etc/init.d/background.sh` file does not exist, then you may need to create your own SysvInit file which launches the thin-edge.io bootstrap.sh script.
+5. Reboot the device and check that all of the services have started
 
-3. Reboot the device and check that all of the services have started
+    ```sh
+    reboot
+    ```
