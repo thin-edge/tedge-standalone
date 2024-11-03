@@ -32,7 +32,21 @@
     
     If the `/etc/init.d/background.sh` file does not exist, then you may need to create your own SysVInit file which launches the thin-edge.io bootstrap.sh script.
 
-5. Reboot the device and check that all of the services have started
+5. Edit the default shell profile (whilst still in read/write mode) and add the following snippet
+
+    ```sh
+    vi /etc/profile
+    ```
+
+    *Contents*
+
+    ```sh
+    if [ -d /home/etc/tedge/bin ]; then
+        export PATH=$PATH:/home/etc/tedge/bin
+    fi
+    ```
+
+6. Reboot the device and check that all of the services have started
 
     ```sh
     reboot
