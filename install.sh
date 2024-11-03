@@ -139,9 +139,11 @@ main() {
     # after that, the user must move it themselves
     if [ "$OVERWRITE_CONFIG" = 1 ]; then
         echo "Overwriting any existing configuration" >&2
+        mv "$INSTALL_PATH/tedge/env.default" "$INSTALL_PATH/tedge/env"
         mv "$INSTALL_PATH/tedge/tedge.default.toml" "$INSTALL_PATH/tedge/tedge.toml"
         mv "$INSTALL_PATH/tedge/system.default.toml" "$INSTALL_PATH/tedge/system.toml"
     else
+        move_if_target_file_missing "env.default" "env"
         move_if_target_file_missing "tedge.default.toml" "tedge.toml"
         move_if_target_file_missing "system.default.toml" "system.toml"
     fi
