@@ -33,22 +33,8 @@ wget -q -O - https://raw.githubusercontent.com/thin-edge/tedge-standalone/main/i
 curl -fsSL https://raw.githubusercontent.com/thin-edge/tedge-standalone/main/install.sh | sh -s -- --install-path /data
 ```
 
-## Bootstrapping
+Then, follow the instructions printed out on the console to bootstrap (configure) and then start the services.
 
-Run the `bootstrap.sh` script to run the bootstrap process to create a certificate and connect thin-edge.io.
-
-```sh
-/data/tedge/bootstrap.sh
-```
-
-Alternatively, you can do the bootstrapping yourself but running the following commands:
-
-```sh
-set -a; . /data/tedge/env; set +a
-tedge cert create --device-id "mydeviceid"
-tedge config set c8y.url "<myurl>"
-tedge cert upload c8y --user "<myuser>"
-```
 
 ## ca-certificates
 
@@ -56,7 +42,15 @@ The standalone installation includes an existing **ca-certificates.crt** file wh
 
 ## Automatically starting services
 
-**Note:** For Telit devices, checkout these [instructions](./docs/TELIT.md).
+### Device specific instructions
+
+If your device is listed below, then you can follow the device specific instructions on how to configure thin-edge.io to start automatically at boot-up.
+
+* [Telit](./docs/TELIT.md)
+* [Advantech](./docs/ADVANTECH.md)
+
+
+### General instructions
 
 Assuming you have already bootstrapped the device (e.g. configured the Cumulocity IoT instance, and uploaded the device certificate), then you need to add the following lines to your startup routine:
 
