@@ -24,13 +24,13 @@ The following command can be used to install the standalone/portable thin-edge.i
 **Using wget**
 
 ```sh
-wget -q -O - https://raw.githubusercontent.com/thin-edge/tedge-standalone/main/install.sh | sh -s
+wget -q -O - https://raw.githubusercontent.com/thin-edge/tedge-standalone/main/install.sh | sh -s -- --install-path /data
 ```
 
 **Using curl**
 
 ```sh
-curl -fsSL https://raw.githubusercontent.com/thin-edge/tedge-standalone/main/install.sh | sh -s
+curl -fsSL https://raw.githubusercontent.com/thin-edge/tedge-standalone/main/install.sh | sh -s -- --install-path /data
 ```
 
 ## Bootstrapping
