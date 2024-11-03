@@ -1,0 +1,31 @@
+#!/bin/sh -e
+touch "/var/log/tedge-mapper-aws.log"
+DAEMON_USER="root"
+LOG_FILE="/var/log/tedge-mapper-aws.log"
+LOCK_DIR=/var/run/lock
+if [ -d /var/run ]; then
+    LOCK_DIR=/var/run/lock
+elif [ -d /run/lock ]; then
+    LOCK_DIR=/run/lock
+fi
+PIDFILE="$LOCK_DIR/tedge-mapper-aws.lock"
+BIN="@CONFIG_DIR@/bin"
+CONFIG_DIR="@CONFIG_DIR@"
+
+if [ -f "$CONFIG_DIR/env" ]; then
+    set -a
+    # shellcheck disable=SC1091
+    . "$CONFIG_DIR/env"
+    set +a
+fi
+
+mkdir -p "$LOCK_DIR"
+chown 1777 "$LOCK_DIR"
+touch "$PIDFILE"
+"$BIN/tedge" init --user root --group root ||:
+
+if [ -n "$DAEMON_USER" ]; then
+    chown "$DAEMON_USER" "$PIDFILE"
+    chown "$DAEMON_USER" "/var/log/tedge-mapper-aws.log"
+fi
+exec chpst -u "$DAEMON_USER" "$BIN/tedge-mapper" aws >> "$LOG_FILE" 2>&1
