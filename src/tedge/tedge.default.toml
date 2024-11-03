@@ -4,6 +4,12 @@ version = "2"
 [c8y]
 root_cert_path = "@CONFIG_DIR@/ca-certificates.crt"
 
+[az]
+root_cert_path = "@CONFIG_DIR@/ca-certificates.crt"
+
+[aws]
+root_cert_path = "@CONFIG_DIR@/ca-certificates.crt"
+
 [mqtt.bridge]
 built_in = true
 
