@@ -23,7 +23,7 @@
 4. Edit the `/etc/init.d/background.sh` script and add the following line (before the call to `exit`)
 
     ```sh
-    sed '/exit 0/i \
+    sed -i '/exit 0/i \
     /home/etc/tedge/bootstrap.sh' 2&> /dev/null \
     /etc/init.d/background.sh
     ```
