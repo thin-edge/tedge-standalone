@@ -5,7 +5,7 @@ version = "2"
 root_cert_path = "@CONFIG_DIR@/ca-certificates.crt"
 # Use basic auth if credentials file is present, otherwise use certificates
 auth_method = "auto"
-credentials_path = "@CONFIG_DIR@/credentials"
+credentials_path = "@CONFIG_DIR@/credentials.toml"
 
 [az]
 root_cert_path = "@CONFIG_DIR@/ca-certificates.crt"
