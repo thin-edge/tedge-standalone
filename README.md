@@ -42,7 +42,7 @@ Before running the `boostrap.sh` script, you will need to set the device's crede
 For example, if you installed thin-edge.io under `/data` then you can set the credentials using the following snippet:
 
 ```sh
-cat <<EOT > /data/tedge/credentials
+cat <<EOT > /data/tedge/credentials.toml
 [c8y]
 username = "{tenant}/device_{external_id}"
 password = "{password}"
