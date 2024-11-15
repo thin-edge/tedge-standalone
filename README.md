@@ -55,7 +55,7 @@ EOT
 
 If your device is listed below, then you can follow the device specific instructions on how to configure thin-edge.io to start automatically at boot-up.
 
-* [Telit](./docs/TELIT.md)
+* [PSsystec](./docs/PSsystec.md)
 * [Advantech](./docs/ADVANTECH.md)
 
 

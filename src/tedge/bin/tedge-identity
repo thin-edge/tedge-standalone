@@ -1,7 +1,7 @@
 #!/bin/sh
 set -eu
 #
-# Example: DEFAULT_MODEL=telit ./tedge-identity
+# Example: DEFAULT_MODEL=PSsystec ./tedge-identity
 #
 
 IDENTITY_PREFIX=${IDENTITY_PREFIX:-}
