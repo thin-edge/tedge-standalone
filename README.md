@@ -9,6 +9,14 @@ This repository shows how thin-edge.io can be packaged and installed on a device
     * Can't install any dependencies in the system files -> need static MQTT broker installed at a custom location
     * Can't install files in the default locations (e.g. `/etc/tedge`) -> need to install all components under a custom path (which is read-writable)
 
+**Important Notes and Limitations**
+
+* A statically compiled [mosquitto](https://github.com/eclipse-mosquitto/mosquitto) is provided, but it is not currently compiled with SSL enable, so it is not recommended to expose the MQTT broker to other devices in the network. This limitation will most likely be lifted in the future once the build issues can be sorted with mosquitto. Note, 
+
+* Since statically compiled mosquitto version does not yet support SSL, the tedge-mapper is configured to use the built-in (Rust) bridge to connect securely to the cloud using TLS. The built-in bridge was added in thin-edge.io ~1.2.0 but is not yet enabled by default in the standard installation, but there should be no notable difference.
+
+* [upx](https://github.com/upx/upx) is used to compress the **tedge** and **mosquitto** binaries to meet the 5MB installation size. Using UPX has the slight performance cost on the startup of the service. Please read the [UPX README](https://github.com/upx/upx) on their page for more details about how it works and some of the tradeoffs.
+
 ## Pre-requisites
 
 The following pre-requisites are required for the standalone thin-edge.io version to work.
