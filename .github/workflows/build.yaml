@@ -9,7 +9,7 @@ on:
   workflow_dispatch:
 
 env:
-  TEDGE_CHANNEL: main
+  TEDGE_CHANNEL: release
 
 jobs:
   build:
