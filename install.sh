@@ -5,6 +5,7 @@ INSTALL_PATH="${INSTALL_PATH:-/data}"
 VERSION="${VERSION:-0.6.0}"
 INSTALL_FILE="${INSTALL_FILE:-}"
 OVERWRITE_CONFIG=0
+VERSION_SUFFIX="${VERSION_SUFFIX:-"-upx"}"
 
 usage() {
     cat << EOT
@@ -12,13 +13,16 @@ Install thin-edge.io standalone package for running on resource constrained devi
 without any accessible init system.
 
 USAGE
-    $0 [--install-path <path>] [--version <version>]
+    $0 [--install-path <path>] [--version <version>] [--no-upx]
 
 ARGUMENTS
   --install-path <path>         Install path. Defaults to $INSTALL_PATH
   --version <version>           Version to install. Defaults to $VERSION
   --file <path>                 Install from a file instead of downloading it
   --overwrite                   Overwrite any existing configuration
+  --upx                         Use upx'd versions of the binaries (Default).
+                                Useful for devices with very limited disk space (< 10MB) and have memory more than 64MB
+  --no-upx                      Don't download the upx'd version (e.g. recommended for low-memory devices)
 
 EXAMPLE
 
@@ -27,6 +31,9 @@ EXAMPLE
 
     $0 --install-path /data
     # Install under a custom location
+
+    $0 --install-path /data --no-upx
+    # Install under a custom location but install the non-upx'd versions
 
     $0 --install-path /home/etc --overwrite
     # Install under a custom location and overrite any existing configuration files
@@ -41,6 +48,12 @@ while [ $# -gt 0 ]; do
         --install-path)
             INSTALL_PATH="$2"
             shift
+            ;;
+        --upx)
+            VERSION_SUFFIX="-upx"
+            ;;
+        --no-upx)
+            VERSION_SUFFIX=""
             ;;
         --file)
             INSTALL_FILE="$2"
@@ -124,7 +137,7 @@ install_from_web() {
     esac
 
     cd /tmp
-    wget -q "https://github.com/thin-edge/tedge-standalone/releases/download/$VERSION/tedge-standalone-${TARGET_ARCH}.tar.gz"
+    wget -q "https://github.com/thin-edge/tedge-standalone/releases/download/$VERSION/tedge-standalone-${TARGET_ARCH}${VERSION_SUFFIX}.tar.gz"
     mkdir -p "$INSTALL_PATH"
     echo "Installing thin-edge.io to $INSTALL_PATH/tedge"
 

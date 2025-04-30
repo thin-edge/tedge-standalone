@@ -37,15 +37,19 @@ jobs:
         with:
           fetch-depth: 0
       - uses: taiki-e/install-action@just
-      - name: Build
-        run: just build ${{ matrix.target.arch }} ${{ matrix.target.name }}
+      - name: Build (with upx)
+        run: just build ${{ matrix.target.arch }} ${{ matrix.target.name }}-upx
+      - name: Build (without upx)
+        run: just build ${{ matrix.target.arch }} ${{ matrix.target.name }} --skip-upx
 
       - name: Upload packages as zip
         # https://github.com/marketplace/actions/upload-a-build-artifact
         uses: actions/upload-artifact@v4
         with:
             name: tedge-standalone-${{ matrix.target.name }}
-            path: tedge-standalone-${{ matrix.target.name }}.tar.gz
+            path: |
+              tedge-standalone-${{ matrix.target.name }}-upx.tar.gz
+              tedge-standalone-${{ matrix.target.name }}.tar.gz
 
   release:
     runs-on: ubuntu-latest
