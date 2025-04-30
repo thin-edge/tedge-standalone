@@ -10,6 +10,7 @@ TARGET_NAME="$2"
 PACKAGE="${PACKAGE:-}"
 TEDGE_VERSION="${TEDGE_VERSION:-}"
 TEDGE_CHANNEL="${TEDGE_CHANNEL:-}"
+SKIP_UPX="${SKIP_UPX:-}"
 
 while [ $# -gt 0 ]; do
     case "$1" in
@@ -33,6 +34,9 @@ while [ $# -gt 0 ]; do
             TEDGE_CHANNEL="$2"
             shift
             ;;
+        --skip-upx)
+            SKIP_UPX=1
+            ;;
     esac
     shift
 done
@@ -51,8 +55,12 @@ if [ -z "$TEDGE_VERSION" ]; then
     TEDGE_VERSION=$(curl -s "https://dl.cloudsmith.io/public/thinedge/tedge-${TEDGE_CHANNEL}/raw/names/tedge-arm64/versions/latest/tedge.tar.gz" --write-out '%{redirect_url}' | rev | cut -d/ -f2 | rev)
 fi
 
-SKIP_UPX=0
+if [ -z "$SKIP_UPX" ]; then
+    SKIP_UPX=0
+fi
+
 if [ "$TARGET" = "riscv64-linux" ]; then
+    # risc64 does not support upx, so ensure it is disabled
     SKIP_UPX=1
 fi
 
