@@ -72,7 +72,9 @@ done
 update_install_path() {
     src="$1"
     value="$2"
-    find "$src" -type f -exec sed -i s%@CONFIG_DIR@%"${value}"%g {} \;
+    # exclude binaries as this can cause additional memory usage which is a problem on smaller devices < 34MB RAM
+    # like the Luckfox Pico
+    find "$src" -type f ! -name tedge ! -name mosquitto -exec sed -i s%@CONFIG_DIR@%"${value}"%g {} \;
 }
 
 decompress_archive() {
