@@ -75,11 +75,25 @@ update_install_path() {
     find "$src" -type f -exec sed -i s%@CONFIG_DIR@%"${value}"%g {} \;
 }
 
+decompress_archive() {
+    input_file="$1"
+    output_dir="$2"
+
+    # Note: busybox tar may not support expanding compressed
+    # archives, so it may need to be manually decompressed before passing
+    # the file to tar
+    if command -V gunzip >/dev/null 2>&1 && gunzip -t "$input_file" >/dev/null 2>&1 ; then
+        gunzip -c "$input_file" | tar xf - -C "$output_dir"
+    else
+        tar xzf "$input_file" -C "$output_dir"
+    fi
+}
+
 install_from_file() {
     install_file="$1"
     mkdir -p "$INSTALL_PATH"
     echo "Installing thin-edge.io to $INSTALL_PATH/tedge"
-    tar xzf "$install_file" -C "$INSTALL_PATH"
+    decompress_archive "$install_file" "$INSTALL_PATH"
 }
 
 install_from_web() {
@@ -111,8 +125,11 @@ install_from_web() {
     wget -q "https://github.com/thin-edge/tedge-standalone/releases/download/$VERSION/tedge-standalone-${TARGET_ARCH}.tar.gz"
     mkdir -p "$INSTALL_PATH"
     echo "Installing thin-edge.io to $INSTALL_PATH/tedge"
-    tar xzf /tmp/tedge-standalone-*.tar.gz -C "$INSTALL_PATH"
-    rm -f /tmp/tedge-standalone-*.tar.gz
+
+    # Resolve the binary before calling the function
+    install_file=$(find /tmp -name "tedge-standalone-*.tar.gz" | head -n1)
+    decompress_archive "$install_file" "$INSTALL_PATH"
+    rm -f "$install_file"
 }
 
 move_if_target_file_missing() {
