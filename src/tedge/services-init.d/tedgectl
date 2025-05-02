@@ -1,0 +1,56 @@
+#!/bin/sh
+set -e
+
+if [ -f @CONFIG_DIR@/env ]; then
+    set -a
+    # shellcheck disable=SC1091
+    . @CONFIG_DIR@/env
+    set +a
+fi
+
+manage_initd() {
+    command="$1"
+    name="$2"
+
+    # check for non-service related actions first
+    case "$command" in
+        restart_device)
+            sync; sync;
+            sleep 2;
+            reboot;
+            exit 0
+            ;;
+    esac
+
+    SOURCE_SCRIPT=$(find "@CONFIG_DIR@/services-init.d" -name "*$name" | head -n1)
+    SERVICE_SCRIPT=$(find /etc/init.d -name "*$name" | head -n1)
+
+    case "$command" in
+        is_available)
+            exit 0
+            ;;
+        start) "$SERVICE_SCRIPT" start ;;
+        stop) "$SERVICE_SCRIPT" stop ;;
+        restart) "$SERVICE_SCRIPT" restart ;;
+        enable)
+            ln -sf "$SOURCE_SCRIPT" "$SERVICE_SCRIPT"
+            ;;
+        disable)
+            rm -f "$SERVICE_SCRIPT"
+            ;;
+        is_active|status)
+            "$SERVICE_SCRIPT" status
+            ;;
+        *) echo "Unsupported command. command=$command"; exit 1 ;;
+    esac
+}
+
+##############################
+# Main
+##############################
+COMMAND="$1"
+SERVICE_NAME=""
+if [ $# -ge 2 ]; then
+    SERVICE_NAME="$2"
+fi
+manage_initd "$COMMAND" "$SERVICE_NAME"

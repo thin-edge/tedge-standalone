@@ -185,6 +185,10 @@ main() {
     echo
     echo "    $INSTALL_PATH/tedge/bootstrap.sh"
     echo
+    echo Import the shell environment using:
+    echo
+    echo "    set -a; . '$INSTALL_PATH/tedge/env'; set +a"
+    echo
 }
 
 main
