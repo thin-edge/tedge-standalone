@@ -2,7 +2,9 @@
 
 This repository shows how thin-edge.io can be packaged and installed on a device which has the following constraints:
 
-* device has less than 5 MB disk space on the read-write partition
+* device has very little disk space on the read-write partition
+    * Requires 5MB  - when using compressed (upx'd) binaries
+    * Requires 14MB - when using uncompressed (non-upx'd) binaries
 * device uses a read-only root filesystem (rootfs) which results in the following restrictions:
     * Can't add or modify services in the init system -> need custom init system
     * Can't add linux users or groups -> need to run services as **root**
@@ -65,6 +67,7 @@ If your device is listed below, then you can follow the device specific instruct
 
 * [PSsystec](./docs/PSsystec.md)
 * [Advantech](./docs/ADVANTECH.md)
+* [Luckfox Pico](./docs/Luckfox.md)
 
 
 ### General instructions

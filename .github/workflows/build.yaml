@@ -38,9 +38,9 @@ jobs:
           fetch-depth: 0
       - uses: taiki-e/install-action@just
       - name: Build (with upx)
-        run: just build ${{ matrix.target.arch }} ${{ matrix.target.name }}-upx
+        run: just build ${{ matrix.target.arch }} ${{ matrix.target.name }}
       - name: Build (without upx)
-        run: just build ${{ matrix.target.arch }} ${{ matrix.target.name }} --skip-upx
+        run: just build ${{ matrix.target.arch }} ${{ matrix.target.name }}-noupx --skip-upx
 
       - name: Upload packages as zip
         # https://github.com/marketplace/actions/upload-a-build-artifact

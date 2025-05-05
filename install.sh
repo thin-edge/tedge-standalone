@@ -50,10 +50,10 @@ while [ $# -gt 0 ]; do
             shift
             ;;
         --upx)
-            VERSION_SUFFIX="-upx"
+            VERSION_SUFFIX=""
             ;;
         --no-upx)
-            VERSION_SUFFIX=""
+            VERSION_SUFFIX="-noupx"
             ;;
         --file)
             INSTALL_FILE="$2"
@@ -184,6 +184,10 @@ main() {
     echo "Configure and start thin-edge.io using the following command:"
     echo
     echo "    $INSTALL_PATH/tedge/bootstrap.sh"
+    echo
+    echo Import the shell environment using:
+    echo
+    echo "    set -a; . '$INSTALL_PATH/tedge/env'; set +a"
     echo
 }
 

@@ -1,0 +1,160 @@
+#!/bin/sh
+#/etc/init.d/tedge-mapper-c8y: tedge-mapper-c8y converts Thin Edge JSON measurements to Cumulocity JSON format
+
+### BEGIN INIT INFO
+# Provides:          tedge-mapper-c8y
+# Short-Description: tedge-mapper-c8y converts Thin Edge JSON measurements to Cumulocity JSON format
+# Required-Start:    $all
+# Required-Stop:     $all
+# Should-Start:      
+# Should-Stop:       
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+### END INIT INFO
+
+# shellcheck disable=SC1090
+# shellcheck disable=SC1091
+
+set -e
+
+CONFIG_DIR="@CONFIG_DIR@"
+BIN=@CONFIG_DIR@/bin
+
+if [ -f "$CONFIG_DIR/env" ]; then
+    set -a
+    # shellcheck disable=SC1091
+    . "$CONFIG_DIR/env"
+    set +a
+fi
+
+# For configuration of the init script use the file
+# /etc/default/tedge-mapper-c8y, do not edit this init script.
+
+# Set run_service to 1 to start tedge-mapper-c8y or 0 to disable it.
+run_service=1
+
+DAEMON="$BIN/tedge-mapper"
+DAEMON_ARGS="c8y"
+DAEMON_USER="root"
+LOG_FILE=/var/log/tedge-mapper-c8y.log
+
+export TEDGE_RUN_LOCK_FILES="false"
+
+[ -e "/etc/default/tedge-mapper-c8y" ] && . "/etc/default/tedge-mapper-c8y"
+
+PIDFILE=/run/lock/tedge-mapper-c8y.lock
+if [ -d /run/lock ]; then
+    PIDFILE=/run/lock/tedge-mapper-c8y.lock
+else
+    PIDFILE=/var/run/tedge-mapper-c8y.lock
+fi
+
+STOP_RETRY_SCHEDULE='TERM/30/KILL/1'
+
+# Mock Debian helper functions when not being run on a debian based OS
+log_begin_msg() {
+    printf "%s" "$*"
+}
+
+log_end_msg() {
+    if [ "$1" = "0" ]; then
+        echo 'done'
+    else
+        echo 'error'
+    fi
+}
+
+log_daemon_msg() {
+    echo "$*"
+}
+
+log_progress_msg() {
+    echo "$*"
+}
+
+# TODO: Can the imports be excluded if the mocked functions are used above?
+if [ -f /lib/lsb/init-functions ]; then
+	# Debian based systems including WSL (ubuntu)
+	. /lib/lsb/init-functions
+fi
+
+if [ -f /etc/init.d/functions ]; then
+	# YOCTO
+	. /etc/init.d/functions
+fi
+
+do_start() {
+    if [ $run_service = 1 ]
+    then
+        log_begin_msg "Starting tedge-mapper-c8y daemon..."
+        tedge init ||:
+
+        # Create log file with given user so it can write to it (for non-root users)
+        touch "$LOG_FILE"
+        if [ -n "$DAEMON_USER" ]; then
+            chown "$DAEMON_USER" "$LOG_FILE"
+        fi
+
+        start-stop-daemon --start --quiet --oknodo --background --make-pidfile --pidfile "$PIDFILE" --chuid "${DAEMON_USER}" --user "${DAEMON_USER}" \
+                --startas /bin/sh -- -c "exec $DAEMON $DAEMON_ARGS >> '$LOG_FILE' 2>&1"
+        log_end_msg $?
+    fi
+}
+
+do_stop() {
+    if [ $run_service = 1 ]
+    then
+        log_begin_msg "Stopping tedge-mapper-c8y daemon..."
+
+        if start-stop-daemon --stop --quiet --oknodo --retry "$STOP_RETRY_SCHEDULE" --pidfile "${PIDFILE}" --user "${DAEMON_USER}"; then
+            log_end_msg 0
+            rm -f "${PIDFILE}"
+        else
+            log_end_msg 1
+        fi
+    fi
+}
+
+case "$1" in
+  start)
+    do_start
+    ;;
+
+  stop)
+    do_stop
+    ;;
+
+  restart)
+    do_stop
+    do_start
+    ;;
+
+  try-restart|force-reload)
+      if [ $run_service = 0 ]; then exit 0; fi
+    log_daemon_msg "Restarting tedge-mapper-c8y"
+    # force-reload is the same as reload or try-restart according
+    # to its definition, the reload is not implemented here, so
+    # force-reload is the alias of try-restart here, but it should
+    # be the alias of reload if reload is implemented.
+    #
+    # Only start the service when do_stop succeeds
+    do_stop && do_start
+    ;;
+
+  status)
+    if command -V status_of_proc >/dev/null 2>&1; then
+        status_of_proc -p "${PIDFILE}" "${DAEMON}" "tedge-mapper-c8y" && exit 0 || exit $?
+    elif command -V status >/dev/null 2>&1; then
+        status "${DAEMON}" && exit 0 || exit $?
+    else
+        pidof "$(dirname "${DAEMON}")" && exit 0 || exit $?
+    fi
+    ;;
+
+  *)
+    echo "Usage: /etc/init.d/tedge-mapper-c8y {start|stop|status|restart|try-restart|force-reload}" >&2
+    exit 1
+
+esac
+
+exit 0
