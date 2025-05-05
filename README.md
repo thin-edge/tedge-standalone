@@ -5,7 +5,7 @@ This repository shows how thin-edge.io can be packaged and installed on a device
 * device has very little disk space on the read-write partition
     * Requires 5MB  - when using compressed (upx'd) binaries
     * Requires 14MB - when using uncompressed (non-upx'd) binaries
-* device uses a read-only root filesystem (rootfs) which results in the following restrictions:
+* device uses a read-only root filesystem (root-fs) which results in the following restrictions:
     * Can't add or modify services in the init system -> need custom init system
     * Can't add linux users or groups -> need to run services as **root**
     * Can't install any dependencies in the system files -> need static MQTT broker installed at a custom location
@@ -30,7 +30,7 @@ The following pre-requisites are required for the standalone thin-edge.io versio
 
 ### Install using wget/curl
 
-The following command can be used to install the standalone/portable thin-edge.io version if you have `wget` or `curl` which support TLS/SSL. If you have trouble installing it due to some TLS or your device does not have an up to date CA store, then please read the [alternative installation instructions](./README.md#install-without-wgetcurl)/
+The following command can be used to install the standalone/portable thin-edge.io version if you have `wget` or `curl` which support TLS/SSL. If you have trouble installing it due to some TLS or your device does not have an up to date CA store, then please read the [alternative installation instructions](./README.md#install-without-wgetcurl).
 
 **Using wget**
 
@@ -61,7 +61,7 @@ On devices where `wget` and/or `curl` don't support TLS/SSL, you will have to ma
 
 ### Using Cumulocity basic authentication
 
-Before running the `boostrap.sh` script, you will need to set the device's credentials (username/password).
+Before running the `bootstrap.sh` script, you will need to set the device's credentials (username/password).
 
 For example, if you installed thin-edge.io under `/data` then you can set the credentials using the following snippet:
 
