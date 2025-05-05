@@ -50,10 +50,10 @@ while [ $# -gt 0 ]; do
             shift
             ;;
         --upx)
-            VERSION_SUFFIX="-upx"
+            VERSION_SUFFIX=""
             ;;
         --no-upx)
-            VERSION_SUFFIX=""
+            VERSION_SUFFIX="-noupx"
             ;;
         --file)
             INSTALL_FILE="$2"
