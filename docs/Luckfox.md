@@ -23,7 +23,7 @@ Install thin-edge.io standalone on a Luckfox Pico device using the following ste
 
     ```sh
     scp -o PreferredAuthentications=password -o PubkeyAuthentication=no "./install.sh" root@192.168.68.71:/tmp/install.sh
-    scp ./tedge-standalone-armhf*.tar.gz root@192.168.68.71:/tmp/
+    scp -o PreferredAuthentications=password -o PubkeyAuthentication=no ./tedge-standalone-armhf*.tar.gz root@192.168.68.71:/tmp/
     ```
 
 1. SSH into the device
@@ -35,8 +35,7 @@ Install thin-edge.io standalone on a Luckfox Pico device using the following ste
 3. Run the installer script on the device
 
     ```sh
-    chmod +x /tmp/install.sh
-    /tmp/install.sh --file /tmp/tedge-standalone-armhf*.tar.gz --install-path /opt
+    sh /tmp/install.sh --file /tmp/tedge-standalone-armhf*.tar.gz --install-path /opt
     ```
 
     Afterwards you can delete both the installer and tar.gz file.
