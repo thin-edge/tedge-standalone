@@ -33,9 +33,6 @@ if command -V runsvdir >/dev/null 2>&1; then
     fi
 
     mkdir -p "$SVDIR"
-    # tedgectl enable mosquitto
-    # tedgectl enable tedge-agent
-    # tedgectl enable tedge-mapper-c8y
 
     # Start runit in the background
     if ! pgrep -f "runsvdir -P $SVDIR" >/dev/null 2>&1; then
@@ -52,17 +49,6 @@ elif [ -d /etc/init.d ]; then
     cp "@CONFIG_DIR@/services-init.d"/S[0-9][0-9]* /etc/init.d/
     rm -f "@CONFIG_DIR@/bin/tedgectl"
     ln -s "@CONFIG_DIR@/services-init.d/tedgectl" "@CONFIG_DIR@/bin/tedgectl"
-
-    # tedgectl enable mosquitto
-    # tedgectl enable tedge-agent
-    # tedgectl enable tedge-mapper-c8y
-
-    # echo "Starting services using init.d scripts" >&2
-    # tedgectl start mosquitto
-    # sleep 1
-    # tedgectl start tedge-agent
-    # sleep 1
-    # tedgectl start tedge-mapper-c8y
 else
     echo "WARNING: Could not start services as 'runsvdir' is not installed. You will need to start the services yourself" >&2
 fi
