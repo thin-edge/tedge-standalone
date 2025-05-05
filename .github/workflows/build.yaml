@@ -48,7 +48,7 @@ jobs:
         with:
             name: tedge-standalone-${{ matrix.target.name }}
             path: |
-              tedge-standalone-${{ matrix.target.name }}-upx.tar.gz
+              tedge-standalone-${{ matrix.target.name }}-noupx.tar.gz
               tedge-standalone-${{ matrix.target.name }}.tar.gz
 
   release:
