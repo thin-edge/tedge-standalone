@@ -24,12 +24,13 @@ This repository shows how thin-edge.io can be packaged and installed on a device
 The following pre-requisites are required for the standalone thin-edge.io version to work.
 
 * busy-box (with the following binaries)
-    * wget
-    * runsvdir
+    * runsvdir or SysVInit (though runsvdir is preferred as it includes a service supervisor)
 
 ## Install
 
-The following command can be used to install the standalone/portable thin-edge.io version.
+### Install using wget/curl
+
+The following command can be used to install the standalone/portable thin-edge.io version if you have `wget` or `curl` which support TLS/SSL. If you have trouble installing it due to some TLS or your device does not have an up to date CA store, then please read the [alternative installation instructions](./README.md#install-without-wgetcurl)/
 
 **Using wget**
 
@@ -44,6 +45,19 @@ curl -fsSL https://raw.githubusercontent.com/thin-edge/tedge-standalone/main/ins
 ```
 
 Then, follow the instructions printed out on the console to bootstrap (configure) and then start the services. However if you are planning on using Cumulocity's basic authentication, then you need to run the following section before running the `bootstrap.sh` script.
+
+### Install without wget/curl
+
+On devices where `wget` and/or `curl` don't support TLS/SSL, you will have to manually download the required artifacts and then copy the files over to the device yourself. The steps for a manual installation are as follows:
+
+1. Download the binaries from the [Releases](https://github.com/thin-edge/tedge-standalone/releases) page to your device (make sure you choose the appropriate CPU architecture for your device)
+2. Download the [install.sh](https://github.com/thin-edge/tedge-standalone/blob/main/install.sh) installation script
+3. Copy both the `install.sh` and the `tar.gz` file to your device using either `scp` or `adb push`
+4. Run the install.sh script and provide both the path to the tar.gz file that you copied earlier and the path where the package should be installed
+
+    ```sh
+    sh ./install.sh --file ./tedge-standalone*.tar.gz --install-path /opt
+    ```
 
 ### Using Cumulocity basic authentication
 
