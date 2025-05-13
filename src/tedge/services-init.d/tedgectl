@@ -1,10 +1,12 @@
 #!/bin/sh
 set -e
 
-if [ -f @CONFIG_DIR@/env ]; then
+CONFIG_DIR="@CONFIG_DIR@"
+
+if [ -f "$CONFIG_DIR/env" ]; then
     set -a
     # shellcheck disable=SC1091
-    . @CONFIG_DIR@/env
+    . "$CONFIG_DIR/env"
     set +a
 fi
 
@@ -22,16 +24,31 @@ manage_initd() {
             ;;
     esac
 
-    SOURCE_SCRIPT=$(find "@CONFIG_DIR@/services-init.d" -name "*$name" | head -n1)
+    SOURCE_SCRIPT=$(find "$CONFIG_DIR/services-init.d" -name "*$name" | head -n1)
     SERVICE_SCRIPT=$(find /etc/init.d -name "*$name" | head -n1)
+    if [ -z "$SERVICE_SCRIPT" ]; then
+        # use default location
+        SERVICE_SCRIPT="/etc/init.d/$(basename "$SOURCE_SCRIPT")"
+    fi
 
     case "$command" in
         is_available)
             exit 0
             ;;
-        start) "$SERVICE_SCRIPT" start ;;
-        stop) "$SERVICE_SCRIPT" stop ;;
-        restart) "$SERVICE_SCRIPT" restart ;;
+        start)
+            "$SERVICE_SCRIPT" start
+            ;;
+        stop)
+            # don't stop a service that does not exist
+            if [ -f "$SERVICE_SCRIPT" ]; then
+                "$SERVICE_SCRIPT" stop
+            fi
+            ;;
+        restart)
+            # tedge connect will do a restart then enable the service
+            manage_initd enable "$name" ||:
+            "$SERVICE_SCRIPT" restart
+            ;;
         enable)
             ln -sf "$SOURCE_SCRIPT" "$SERVICE_SCRIPT"
             ;;
