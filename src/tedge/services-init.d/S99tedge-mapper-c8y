@@ -21,10 +21,8 @@ CONFIG_DIR="@CONFIG_DIR@"
 BIN=@CONFIG_DIR@/bin
 
 if [ -f "$CONFIG_DIR/env" ]; then
-    set -a
     # shellcheck disable=SC1091
     . "$CONFIG_DIR/env"
-    set +a
 fi
 
 # For configuration of the init script use the file

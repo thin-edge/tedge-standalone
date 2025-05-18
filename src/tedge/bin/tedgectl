@@ -5,10 +5,8 @@ export SVDIR="${SVDIR:-/run/services}"
 export RUNIT_SRCDIR="${RUNIT_SRCDIR:-@CONFIG_DIR@/services}"
 
 if [ -f @CONFIG_DIR@/env ]; then
-    set -a
     # shellcheck disable=SC1091
     . @CONFIG_DIR@/env
-    set +a
 fi
 
 manage_runit() {
@@ -20,9 +18,17 @@ manage_runit() {
             # Check if runit instance is active
             pgrep -f "runsvdir -P $SVDIR" >/dev/null 2>&1
             ;;
-        start) sv start "$name" ;;
-        stop) sv stop "$name" ;;
-        restart) sv restart "$name" ;;
+        start)
+            manage_runit enable "$name" ||:
+            sv start "$name" ||:
+            ;;
+        stop)
+            sv stop "$name" ||:
+            ;;
+        restart)
+            manage_runit enable "$name" ||:
+            sv restart "$name" ||:
+            ;;
         enable)
             if [ ! -d "$SVDIR/$name" ]; then
                 ln -s "$RUNIT_SRCDIR/$name" "$SVDIR/"

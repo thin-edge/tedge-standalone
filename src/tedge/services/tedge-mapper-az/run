@@ -13,10 +13,8 @@ BIN="@CONFIG_DIR@/bin"
 CONFIG_DIR="@CONFIG_DIR@"
 
 if [ -f "$CONFIG_DIR/env" ]; then
-    set -a
     # shellcheck disable=SC1091
     . "$CONFIG_DIR/env"
-    set +a
 fi
 
 mkdir -p "$LOCK_DIR"

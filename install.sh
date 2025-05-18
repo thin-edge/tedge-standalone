@@ -36,7 +36,7 @@ EXAMPLE
     # Install under a custom location but install the non-upx'd versions
 
     $0 --install-path /home/etc --overwrite
-    # Install under a custom location and overrite any existing configuration files
+    # Install under a custom location and overwrite any existing configuration files
 
     $0 --file ./tedge-standalone-arm64.tar.gz --install-path /home/root
     # Install from a manually downloaded file and install under a custom path
@@ -183,11 +183,26 @@ main() {
     echo
     echo "Configure and start thin-edge.io using the following command:"
     echo
-    echo "    $INSTALL_PATH/tedge/bootstrap.sh"
+    echo Option 1: Register using Cumulocity Certificate Authority
+    echo
+    echo "    $INSTALL_PATH/tedge/bootstrap.sh --ca c8y --c8y-url 'example.cumulocity.com'"
+    echo
+    echo "    $INSTALL_PATH/tedge/bootstrap.sh --ca c8y --c8y-url 'example.cumulocity.com' --device-id tedge01"
+    echo
+    echo
+    echo Option 2: Register using Cumulocity self-signed certificate
+    echo
+    echo "    $INSTALL_PATH/tedge/bootstrap.sh --ca c8y --c8y-url 'example.cumulocity.com' --device-id tedge01"
+    echo
+    echo
+    echo "Option 3: Register using Cumulocity Basic Authorization Credentials (pre-registered)"
+    echo
+    echo "    $INSTALL_PATH/tedge/bootstrap.sh --c8y-url 'example.cumulocity.com' --device-user 't12345/device_tedge01' --device-password 'ex4ampl3['"
+    echo
     echo
     echo Import the shell environment using:
     echo
-    echo "    set -a; . '$INSTALL_PATH/tedge/env'; set +a"
+    echo "    . '$INSTALL_PATH/tedge/env'"
     echo
 }
 
