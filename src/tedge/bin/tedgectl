@@ -18,9 +18,17 @@ manage_runit() {
             # Check if runit instance is active
             pgrep -f "runsvdir -P $SVDIR" >/dev/null 2>&1
             ;;
-        start) sv start "$name" ;;
-        stop) sv stop "$name" ;;
-        restart) sv restart "$name" ;;
+        start)
+            manage_runit enable "$name" ||:
+            sv start "$name" ||:
+            ;;
+        stop)
+            sv stop "$name" ||:
+            ;;
+        restart)
+            manage_runit enable "$name" ||:
+            sv restart "$name" ||:
+            ;;
         enable)
             if [ ! -d "$SVDIR/$name" ]; then
                 ln -s "$RUNIT_SRCDIR/$name" "$SVDIR/"
