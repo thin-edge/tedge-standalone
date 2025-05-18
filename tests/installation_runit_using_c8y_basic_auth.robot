@@ -20,13 +20,11 @@ Install From File Without UPX
     Bootstrap Using Basic Authentication
 
 Install From URL With UPX
-    Skip    TODO
     Setup Device    image=busybox
     DeviceLibrary.Execute Command    cmd=wget -q -O - https://raw.githubusercontent.com/thin-edge/tedge-standalone/main/install.sh | sh -s -- --install-path /data
     Bootstrap Using Basic Authentication
 
 Install From URL Without UPX
-    Skip    TODO
     Setup Device    image=busybox
     DeviceLibrary.Execute Command    cmd=wget -q -O - https://raw.githubusercontent.com/thin-edge/tedge-standalone/main/install.sh | sh -s -- --install-path /data --no-upx
     Bootstrap Using Basic Authentication
