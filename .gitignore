@@ -9,3 +9,6 @@ src/tedge/bin/tedge
 tmp/
 /tedge-*
 binaries/zig-mosquitto/
+log.html
+output.xml
+report.html
