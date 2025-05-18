@@ -183,7 +183,22 @@ main() {
     echo
     echo "Configure and start thin-edge.io using the following command:"
     echo
-    echo "    $INSTALL_PATH/tedge/bootstrap.sh"
+    echo Option 1: Register using Cumulocity Certificate Authority
+    echo
+    echo "    $INSTALL_PATH/tedge/bootstrap.sh --ca c8y --c8y-url 'example.cumulocity.com'"
+    echo
+    echo "    $INSTALL_PATH/tedge/bootstrap.sh --ca c8y --c8y-url 'example.cumulocity.com' --device-id tedge01"
+    echo
+    echo
+    echo Option 2: Register using Cumulocity self-signed certificate
+    echo
+    echo "    $INSTALL_PATH/tedge/bootstrap.sh --ca c8y --c8y-url 'example.cumulocity.com' --device-id tedge01"
+    echo
+    echo
+    echo "Option 3: Register using Cumulocity Basic Authorization Credentials (pre-registered)"
+    echo
+    echo "    $INSTALL_PATH/tedge/bootstrap.sh --c8y-url 'example.cumulocity.com' --device-user 't12345/device_tedge01' --device-password 'ex4ampl3['"
+    echo
     echo
     echo Import the shell environment using:
     echo

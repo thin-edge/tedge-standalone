@@ -44,7 +44,7 @@ wget -q -O - https://raw.githubusercontent.com/thin-edge/tedge-standalone/main/i
 curl -fsSL https://raw.githubusercontent.com/thin-edge/tedge-standalone/main/install.sh | sh -s -- --install-path /data
 ```
 
-Then, follow the instructions printed out on the console to bootstrap (configure) and then start the services. However if you are planning on using Cumulocity's basic authentication, then you need to run the following section before running the `bootstrap.sh` script.
+Then, follow the instructions printed out on the console to bootstrap (configure) and then start the services.
 
 ### Install without wget/curl
 
@@ -66,11 +66,24 @@ Before running the `bootstrap.sh` script, you will need to set the device's cred
 For example, if you installed thin-edge.io under `/data` then you can set the credentials using the following snippet:
 
 ```sh
-cat <<EOT > /data/tedge/credentials.toml
+./bootstrap.sh --device-user "{tenant}/device_{external_id}" --device-password "{password}" --c8y-url {CumulocityURL}
+
+# example
+./bootstrap.sh --device-user "t12345/device_tedge-abcdef" --device-password 'ex4amp!3' --c8y-url example.cumulocity.com
+```
+
+Alternative, you can set the `credentials.toml` under the installed directory, e.g. `/data/tedge/credentials.toml` (if you're using the default installation directory):
+
+```sh
 [c8y]
 username = "{tenant}/device_{external_id}"
 password = "{password}"
-EOT
+```
+
+For [go-c8y-cli](https://goc8ycli.netlify.app/) users, you can register a device and generate randomized credentials using the following command. The device's username (including tenant) and password will be printed out on the console, and then you can provide the values to the `bootstrap.sh` script. 
+
+```sh
+c8y deviceregistration register-basic --id tedge-abcdef
 ```
 
 ## Automatically starting services
