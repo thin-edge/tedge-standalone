@@ -1,0 +1,93 @@
+name: Test
+
+on:
+  workflow_dispatch:
+  # Use a manual approval process before PR's are given access to
+  # the secrets which are required to run the integration tests.
+  # The PR code should be manually approved to see if it can be trusted.
+  # When in doubt, do not approve the test run.
+  # Reference: https://dev.to/petrsvihlik/using-environment-protection-rules-to-secure-secrets-when-building-external-forks-with-pullrequesttarget-hci
+  pull_request_target:
+    branches: [ main ]
+  merge_group:
+jobs:
+  approve:
+    name: Approve
+    environment:
+      # For security reasons, all pull requests need to be approved first before granting access to secrets
+      # So the environment should be set to have a reviewer/s inspect it before approving it
+      name: ${{ github.event_name == 'pull_request_target' && 'Test Pull Request' || 'Test Auto'  }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Wait for approval
+        run: echo "Approved"
+
+  test:
+    name: Test ${{ matrix.target.name }}
+    runs-on: ${{ matrix.target.runner }}
+    needs: approve
+    environment:
+      name: Test Auto
+
+    strategy:
+      fail-fast: false
+      matrix:
+        target:
+          - { name: amd64, arch: x86_64-linux, runner: ubuntu-24.04 }
+          - { name: arm64, arch: aarch64-linux-musl, runner: ubuntu-24.04-arm }
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'pull_request_target' && github.event.pull_request.head.sha || '' }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+        with:
+          install: true
+
+      - uses: taiki-e/install-action@just
+
+      - name: Build (with upx)
+        run: just build ${{ matrix.target.arch }} ${{ matrix.target.name }}
+
+      - name: Build (without upx)
+        run: just build ${{ matrix.target.arch }} ${{ matrix.target.name }}-noupx --skip-upx
+
+      - name: create .env file
+        run: |
+          touch .env
+          echo 'C8Y_BASEURL="${{ secrets.C8Y_BASEURL }}"' >> .env
+          echo 'C8Y_USER="${{ secrets.C8Y_USER }}"' >> .env
+          echo 'C8Y_PASSWORD="${{ secrets.C8Y_PASSWORD }}"' >> .env
+          echo 'TEST_TARGET_NAME="${{ matrix.target.name }}"' >> .env
+          cat .env
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+          cache-dependency-path: |
+            tests/requirements.txt
+
+      - name: Install dependencies
+        run: |
+          just venv
+
+      - name: Run tests
+        run: just test
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: reports-${{ matrix.target.name }}-${{ matrix.target.arch }}
+          path: output
+
+      - name: Send report to commit
+        uses: joonvena/robotframework-reporter-action@v2.5
+        with:
+          gh_access_token: ${{ secrets.GITHUB_TOKEN }}
+          report_path: 'output'
+          show_passed_tests: 'true'

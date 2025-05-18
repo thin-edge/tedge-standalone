@@ -8,13 +8,13 @@ Test Teardown    Stop Device
 *** Test Cases ***
 
 Install From File With UPX
-    ${file}=    Set Variable    tedge-standalone-arm64.tar.gz
+    ${file}=    Set Variable    tedge-standalone-${TARGET.name}.tar.gz
     Setup Device With Binaries    image=busybox   file=${file}    target_dir=/root
     Install Standalone Binary    ${file}    target_dir=/root
     Bootstrap Using Certificate Authority
 
 Install From File Without UPX
-    ${file}=    Set Variable    tedge-standalone-arm64-noupx.tar.gz
+    ${file}=    Set Variable    tedge-standalone-${TARGET.name}-noupx.tar.gz
     Setup Device With Binaries    image=busybox   file=${file}    target_dir=/root
     Install Standalone Binary    ${file}    target_dir=/root
     Bootstrap Using Certificate Authority
@@ -31,7 +31,7 @@ Install From URL Without UPX
 
 
 Install on SysVInit Device
-    ${file}=    Set Variable    tedge-standalone-arm64-noupx.tar.gz
+    ${file}=    Set Variable    tedge-standalone-${TARGET.name}-noupx.tar.gz
     Setup SysVInit Device With Binaries    image=debian:12   file=${file}    target_dir=/root
     Install Standalone Binary    ${file}    target_dir=/root
     Bootstrap Using Certificate Authority
