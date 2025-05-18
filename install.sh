@@ -36,7 +36,7 @@ EXAMPLE
     # Install under a custom location but install the non-upx'd versions
 
     $0 --install-path /home/etc --overwrite
-    # Install under a custom location and overrite any existing configuration files
+    # Install under a custom location and overwrite any existing configuration files
 
     $0 --file ./tedge-standalone-arm64.tar.gz --install-path /home/root
     # Install from a manually downloaded file and install under a custom path
