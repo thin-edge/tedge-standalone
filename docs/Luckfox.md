@@ -59,7 +59,7 @@ Install thin-edge.io standalone on a Luckfox Pico device using the following ste
 
     ```sh
     load_tedge_env() {
-        set -a; . /opt/tedge/env; set +a;
+        . /opt/tedge/env;
     }
     load_tedge_env
     ```

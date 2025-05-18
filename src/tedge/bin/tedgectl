@@ -5,10 +5,8 @@ export SVDIR="${SVDIR:-/run/services}"
 export RUNIT_SRCDIR="${RUNIT_SRCDIR:-@CONFIG_DIR@/services}"
 
 if [ -f @CONFIG_DIR@/env ]; then
-    set -a
     # shellcheck disable=SC1091
     . @CONFIG_DIR@/env
-    set +a
 fi
 
 manage_runit() {

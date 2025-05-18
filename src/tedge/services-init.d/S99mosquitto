@@ -21,10 +21,8 @@ CONFIG_DIR="@CONFIG_DIR@"
 BIN=@CONFIG_DIR@/bin
 
 if [ -f "$CONFIG_DIR/env" ]; then
-    set -a
     # shellcheck disable=SC1091
     . "$CONFIG_DIR/env"
-    set +a
 fi
 
 PATH=/bin:/usr/bin:/sbin:/usr/sbin:$BIN

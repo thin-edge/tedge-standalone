@@ -17,7 +17,7 @@ if command -V runsvdir >/dev/null 2>&1; then
     #
     # Setup runit services
     #
-    if ! grep -q '^SVDIR=/.*' @CONFIG_DIR@/env; then
+    if ! grep -q '^export SVDIR=/.*' "$CONFIG_DIR/env"; then
         if [ -d /var/run ]; then
             SVDIR=/var/run/services
         elif [ -d /run ]; then
@@ -28,7 +28,7 @@ if command -V runsvdir >/dev/null 2>&1; then
             echo "Could not find a volatile directory for the runit services" >&2
             exit 1
         fi
-        echo "SVDIR=$SVDIR" >> "@CONFIG_DIR@/env"
+        echo "export SVDIR=$SVDIR" >> "$CONFIG_DIR/env"
         export SVDIR
     fi
 

@@ -103,7 +103,7 @@ Assuming you have already launched the custom `runsvdir` instance, the following
 Before running any of the command you need to load the environment variables using the following one-liner:
 
 ```sh
-set -a; . /data/tedge/env; set +a
+. /data/tedge/env
 ```
 
 ### Start services
