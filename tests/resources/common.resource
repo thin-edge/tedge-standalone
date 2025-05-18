@@ -15,6 +15,9 @@ Library     DeviceLibrary    bootstrap_script=/dev/null
 # The user just needs to set the IMAGE env variable
 &{DOCKER_CONFIG}    image=%{TEST_IMAGE=}
 
+# Testing Target
+&{TARGET}    name=%{TEST_TARGET_NAME=}
+
 
 *** Keywords ***
 Setup Device
