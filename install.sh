@@ -87,7 +87,7 @@ update_install_path() {
     value="$2"
     # exclude binaries as this can cause additional memory usage which is a problem on smaller devices < 34MB RAM
     # like the Luckfox Pico
-    find "$src" -type f ! -name tedge ! -name mosquitto -exec sed -i s%@CONFIG_DIR@%"${value}"%g {} \;
+    find "$src/" -type f ! -name tedge ! -name mosquitto -exec sed -i s%@CONFIG_DIR@%"${value}"%g {} \;
 }
 
 decompress_archive() {
@@ -142,7 +142,7 @@ install_from_web() {
     echo "Installing thin-edge.io to $INSTALL_PATH/tedge"
 
     # Resolve the binary before calling the function
-    install_file=$(find /tmp -name "tedge-standalone-*.tar.gz" | head -n1)
+    install_file=$(find /tmp/ -name "tedge-standalone-*.tar.gz" | head -n1)
     decompress_archive "$install_file" "$INSTALL_PATH"
     rm -f "$install_file"
 }
