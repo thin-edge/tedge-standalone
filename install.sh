@@ -137,6 +137,7 @@ install_from_web() {
     esac
 
     cd /tmp
+    rm -f "tedge-standalone-${TARGET_ARCH}${VERSION_SUFFIX}.tar.gz"
     wget -q "https://github.com/thin-edge/tedge-standalone/releases/download/$VERSION/tedge-standalone-${TARGET_ARCH}${VERSION_SUFFIX}.tar.gz"
     mkdir -p "$INSTALL_PATH"
     echo "Installing thin-edge.io to $INSTALL_PATH/tedge"
