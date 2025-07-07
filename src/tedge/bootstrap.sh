@@ -8,6 +8,7 @@ DEVICE_ID="${DEVICE_ID:-}"
 DEVICE_USER="${DEVICE_USER:-}"
 DEVICE_PASSWORD="${DEVICE_PASSWORD:-}"
 DEVICE_ONE_TIME_PASSWORD="${DEVICE_ONE_TIME_PASSWORD:-}"
+OFFLINE_MODE="${OFFLINE_MODE:-}"
 
 usage() {
     cat << EOT
@@ -24,6 +25,7 @@ ARGUMENTS
   --device-password <path>      Device user name (Used in Basic Auth mode only)
   --device-id <name>            Device ID (Cumulocity External ID). tedge-identity will be used if the value is not provided
   --ca <type>                   Certificate Authority Type, e.g. c8y or self-signed. Defaults to c8y (when basic auth is not being used)
+  --offline                     Start thin-edge without internet (skips registration check).
 
 NOTES:
 
@@ -74,6 +76,10 @@ while [ $# -gt 0 ]; do
             ;;
         --one-time-password)
             DEVICE_ONE_TIME_PASSWORD="$2"
+            shift
+            ;;
+        --offline)
+            OFFLINE_MODE="true"
             shift
             ;;
         --help|-h)
@@ -243,7 +249,12 @@ configure_c8y_ca_certificate() {
 
 connect_c8y() {
     if [ -n "$(tedge config get c8y.url 2>/dev/null)" ]; then
-        tedge reconnect c8y
+      if [ -z "$OFFLINE_MODE" ]; then
+          tedge reconnect c8y
+      else
+          tedge disconnect c8y
+          tedge connect c8y --offline
+      fi
     fi
 }
 
