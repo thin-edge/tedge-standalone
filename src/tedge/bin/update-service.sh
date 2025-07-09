@@ -9,12 +9,12 @@ set -e
 #
 # Example on how to use the script within a runit system definition
 #
-# file: service/app1/run
+# file: services/app1/run
 #
 #   $CONFIG_DIR/bin/update-service.sh --register --name app1 --status up
 #   exec /usr/bin/app1
 #
-# file: service/app1/finish
+# file: services/app1/finish
 #
 #   $CONFIG_DIR/bin/update-service.sh --name app1 --status down
 #   sleep 2
