@@ -88,6 +88,10 @@ update_install_path() {
     # exclude binaries as this can cause additional memory usage which is a problem on smaller devices < 34MB RAM
     # like the Luckfox Pico
     find "$src/" -type f ! -name tedge ! -name mosquitto -exec sed -i s%@CONFIG_DIR@%"${value}"%g {} \;
+    if [ -f "/data/oem_poststart.sh" ]; then
+        sed -i s%@CONFIG_DIR@%"${value}"%g /data/oem_poststart.sh
+        chmod +x /data/oem_poststart.sh
+    fi
 }
 
 decompress_archive() {
