@@ -11,4 +11,5 @@ fi
 /etc/init.d/sshd start ||:
 
 # start thin-edge.io
+# Note: use --offline as the device's network adapter might not be active yet
 @CONFIG_DIR@/bootstrap.sh --offline
