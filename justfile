@@ -18,3 +18,22 @@ venv:
 # Run tests
 test *args='':
   ./.venv/bin/python3 -m robot.run --outputdir output {{args}} tests
+
+# Release
+release bump="minor":
+  #!/bin/bash
+  set -e
+  CURRENT_VERSION=$(git tag -l | sort -rV | head -n1)
+  MAJOR=$(echo "$CURRENT_VERSION" | cut -d. -f1)
+  MINOR=$(echo "$CURRENT_VERSION" | cut -d. -f2)
+  PATCH=$(echo "$CURRENT_VERSION" | cut -d. -f3)
+  case "{{bump}}" in
+    major) MAJOR=$((MAJOR + 1));;
+    minor) MINOR=$((MINOR + 1));;
+    patch) PATCH=$((PATCH + 1));;
+  esac
+  echo "Current version: $CURRENT_VERSION"
+  RELEASE_VERSION="${MAJOR}.${MINOR}.${PATCH}"
+  echo "Next version:    $RELEASE_VERSION"
+  git tag -a "$RELEASE_VERSION" -m "$RELEASE_VERSION"
+  git push origin "$RELEASE_VERSION"
