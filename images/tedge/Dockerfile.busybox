@@ -1,0 +1,63 @@
+FROM busybox:1.37
+
+ARG USERNAME=tedge
+ARG USER_UID=1000
+ARG USER_GID=$USER_UID
+
+ARG BUILDTIME
+ARG REVISION
+ARG VERSION
+
+LABEL org.opencontainers.image.title="thin-edge.io"
+LABEL org.opencontainers.image.created=$BUILDTIME
+LABEL org.opencontainers.image.version=$VERSION
+LABEL org.opencontainers.image.revision=$REVISION
+LABEL org.opencontainers.image.description="thin-edge.io container with the multi-call binary"
+LABEL org.opencontainers.image.source="https://github.com/thin-edge/thin-edge.io"
+LABEL org.opencontainers.image.authors="thin-edge.io"
+LABEL org.opencontainers.image.vendor="thin-edge.io"
+LABEL org.opencontainers.image.licenses="Apache 2.0"
+LABEL org.opencontainers.image.url="https://thin-edge.io"
+LABEL org.opencontainers.image.documentation="https://thin-edge.github.io/thin-edge.io/"
+LABEL org.opencontainers.image.base.name="busybox:1.37"
+
+# Copy extra binaries
+RUN cd /tmp \
+    && wget https://github.com/thin-edge/tedge-standalone/releases/download/0.11.0/tedge-standalone-arm64.tar.gz \
+    && tar xzvf /tmp/tedge-standalone-*.tar.gz \
+    && cp /tmp/tedge/bin/tedge /usr/bin/ \
+    && cp /tmp/tedge/bin/mosquitto /usr/bin/ \
+    && cp /tmp/tedge/bin/c8y-command /usr/bin/ \
+    # ca-certificates
+    && mkdir -p /etc/ssl/certs \
+    && cp /tmp/tedge/ca-certificates.crt /etc/ssl/certs/ \
+    && /bin/addgroup -g "$USER_GID" -S "$USERNAME" \
+    && adduser -u "$USER_UID" -g '' -H -D "$USERNAME" -G "$USERNAME" \
+    && /usr/bin/tedge init --user "$USERNAME" --group "$USERNAME" \
+    && /usr/bin/c8y-remote-access-plugin --init \
+    && rm /tmp/tedge-standalone-*.tar.gz \
+    && rm -rf /tmp/tedge
+
+COPY mosquitto.conf /etc/mosquitto/
+COPY bootstrap.sh /usr/bin/bootstrap.sh
+
+# shell plugin but use older mapper version which does not have a dependency to jq
+# TODO: Add tedge feature to allow a command to return data as plain text instead of json
+COPY c8y_Command /etc/tedge/operations/c8y/c8y_Command
+
+RUN mkdir -p /mosquitto/data/ && chown -R "$USERNAME:$USERNAME" /mosquitto/data/
+
+# Add custom config
+COPY system.toml /etc/tedge/
+
+ENV TEDGE_MQTT_BIND_ADDRESS=0.0.0.0
+ENV TEDGE_C8Y_PROXY_BIND_ADDRESS=0.0.0.0
+ENV TEDGE_HTTP_BIND_ADDRESS=0.0.0.0
+ENV TEDGE_MQTT_CLIENT_HOST=mqtt-broker
+ENV TEDGE_HTTP_CLIENT_HOST=tedge
+ENV TEDGE_C8Y_PROXY_CLIENT_HOST=tedge-mapper-c8y
+ENV TEDGE_MQTT_BRIDGE_BUILT_IN=true
+ENV TEDGE_RUN_LOCK_FILES=false
+
+USER "$USER_UID:$USER_GID"
+CMD [ "/usr/bin/tedge-agent" ]
