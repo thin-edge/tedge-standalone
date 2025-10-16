@@ -69,7 +69,8 @@ if ! command -V "$ZIG" >/dev/null 2>&1; then
     python3 -m venv .venv ||:
     # shellcheck disable=SC1091
     . .venv/bin/activate
-    pip install ziglang
+    # Use fixed ziglang version due to breaking changes in 0.15.1
+    pip install ziglang==0.14.1
     ZIG="python -m ziglang"
 fi
 
