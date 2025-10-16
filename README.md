@@ -113,7 +113,7 @@ Then reboot device to check if the services are started correctly.
 
 Additional guides are provided to help users to perform common tasks are listed below.
 
-* [Moving a device to a new Cumulocity Tenant](./docs/tutorials/c8y-tenant-migration.md)
+* [Moving a device to a new Cumulocity Tenant](./docs/guides/c8y-tenant-migration.md)
 
 Please feel free to raise a PR to contribute any additional guides.
 
