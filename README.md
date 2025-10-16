@@ -109,6 +109,14 @@ Then reboot device to check if the services are started correctly.
 
 **Note** The above snippet uses **runit** to launch the thin-edge.io services from a custom configured services directory (as defined in the `/data/tedge/env` dotenv file). **runit** is used as it is included in busy-box and provides service supervision (e.g. it will automatically relaunch the service if it crashes for any reason).
 
+## Additional Guides
+
+Additional guides are provided to help users to perform common tasks are listed below.
+
+* [Moving a device to a new Cumulocity Tenant](./docs/tutorials/c8y-tenant-migration.md)
+
+Please feel free to raise a PR to contribute any additional guides.
+
 ## Service management
 
 Assuming you have already launched the custom `runsvdir` instance, the following commands can be used to manage the thin-edge.io related services. The commands use a wrapper (`tedgectl`) around the **runit** commands for convenience (and `tedgectl` is used in the init system integration defined in the `system.toml` file).
