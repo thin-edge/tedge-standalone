@@ -41,9 +41,15 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        channel:
+          - release
+          - main
         target:
           - { name: amd64, arch: x86_64-linux, runner: ubuntu-24.04 }
           - { name: arm64, arch: aarch64-linux-musl, runner: ubuntu-24.04-arm }
+
+    env:
+      TEDGE_CHANNEL: ${{ matrix.channel }}
 
     steps:
       - name: Checkout
@@ -91,7 +97,7 @@ jobs:
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: reports-${{ matrix.target.name }}-${{ matrix.target.arch }}
+          name: reports-${{ matrix.target.name }}-${{ matrix.channel }}-${{ matrix.target.arch }}
           path: output
 
       - name: Send report to commit
