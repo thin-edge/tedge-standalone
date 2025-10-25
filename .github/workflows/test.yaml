@@ -27,7 +27,7 @@ jobs:
         run: echo "Approved"
 
   test:
-    name: Test ${{ matrix.target.name }}
+    name: Test ${{ matrix.channel }}-${{ matrix.target.name }}
     runs-on: ${{ matrix.target.runner }}
     needs: approve
     permissions:
