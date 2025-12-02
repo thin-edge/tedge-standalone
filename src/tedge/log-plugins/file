@@ -1,0 +1,2 @@
+#!/bin/sh
+exec tedge run tedge-file-log-plugin "$@"

@@ -24,3 +24,9 @@ path = "/tmp"
 
 [data]
 path = "/tmp/tedge"
+
+[log]
+plugin_paths = ["@CONFIG_DIR@/log-plugins", "/usr/share/tedge/log-plugins"]
+
+[diag]
+plugin_paths = ["@CONFIG_DIR@/diag-plugins", "/usr/share/tedge/diag-plugins"]
