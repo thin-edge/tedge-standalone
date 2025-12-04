@@ -95,6 +95,7 @@ If your device is listed below, then you can follow the device specific instruct
 * [PSsystec](./docs/PSsystec.md)
 * [Advantech](./docs/ADVANTECH.md)
 * [Luckfox Pico](./docs/Luckfox.md)
+* [Actility-TAO](./docs/Actility-TAO.md)
 
 
 ### General instructions

@@ -1,0 +1,29 @@
+#!/bin/sh
+### BEGIN INIT INFO
+# Provides:          tedge-reconnect
+# Required-Start:    $remote_fs $network
+# Required-Stop:
+# Default-Start:     2 3 4 5
+# Default-Stop:
+# Short-Description: Reconnect tedge to Cumulocity after boot
+### END INIT INFO
+
+case "$1" in
+  start)
+    echo "Starting tedge reconnect delay..."
+    (
+      sleep 120
+      . /user/tedge/env
+      tedge reconnect c8y >> /var/log/tedge-reconnect.log 2>&1
+    ) &
+    ;;
+  stop)
+    echo "Nothing to stop."
+    ;;
+  *)
+    echo "Usage: /etc/init.d/tedge-reconnect {start|stop}"
+    exit 1
+    ;;
+esac
+
+exit 0
