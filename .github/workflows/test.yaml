@@ -70,6 +70,7 @@ jobs:
           version: "~> v2"
           install-only: true
 
+      - uses: mlugg/setup-zig@v2
       - name: Build (with upx)
         run: just build ${{ matrix.target.arch }} ${{ matrix.target.name }}
 
