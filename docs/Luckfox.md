@@ -51,7 +51,17 @@ Install thin-edge.io standalone on a Luckfox Pico device using the following ste
     /opt/tedge/bootstrap.sh
     ```
 
-5. Add the following shell profile snippet to enable loading of the tedge configuration by default in newly opened shells. You will need to reload your shell afterwards for it to take effect
+5. Set some device specific settings
+
+    ```sh
+    mkdir -p /tedge/tmp
+    tedge config set tmp.path /tedge/tmp
+    tedge config set data.path /tedge
+    ```
+
+    Avoid using the `/tmp` directory as it is only a virtual filesystem mounted in memory, so downloading files will use more memory and can lead to OOM level events which kill the thin-edge.io components.
+
+6. Add the following shell profile snippet to enable loading of the tedge configuration by default in newly opened shells. You will need to reload your shell afterwards for it to take effect
 
     ```sh
     vi /etc/profile.d/tedge.sh
