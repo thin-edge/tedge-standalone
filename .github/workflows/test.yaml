@@ -64,6 +64,12 @@ jobs:
 
       - uses: taiki-e/install-action@just
 
+      - name: Install GoReleaser
+        uses: goreleaser/goreleaser-action@v6
+        with:
+          version: "~> v2"
+          install-only: true
+
       - name: Build (with upx)
         run: just build ${{ matrix.target.arch }} ${{ matrix.target.name }}
 
