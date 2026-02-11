@@ -1,0 +1,65 @@
+#!/bin/sh
+### BEGIN INIT INFO
+# Provides:          tedge-reconnect
+# Required-Start:    $remote_fs $network
+# Required-Stop:
+# Default-Start:     2 3 4 5
+# Default-Stop:
+# Short-Description: Reconnect tedge to Cumulocity after boot if it is configured and the connection test fails
+### END INIT INFO
+
+# shellcheck disable=SC1090
+# shellcheck disable=SC1091
+
+set -e
+
+CONFIG_DIR="@CONFIG_DIR@"
+BIN=@CONFIG_DIR@/bin
+
+if [ -f "$CONFIG_DIR/env" ]; then
+    # shellcheck disable=SC1091
+    . "$CONFIG_DIR/env"
+fi
+
+# For configuration of the init script use the file
+# /etc/default/tedge-reconnect, do not edit this init script.
+
+# Set run_service to 1 to start tedge-reconnect or 0 to disable it.
+run_service=1
+
+LOG_FILE=/var/log/S99tedge-reconnect.log
+
+[ -e "/etc/default/S99tedge-reconnect" ] && . "/etc/default/S99tedge-reconnect"
+
+case "$1" in
+    start)
+        if [ "$run_service" = 1 ]
+        then
+            echo "Checking tedge connection after a delay..."
+            (
+                sleep 120
+                # Only run connection test if c8y is configured
+                if tedge config get c8y.mqtt >/dev/null 2>&1; then
+                    if ! tedge connect c8y --test >> "$LOG_FILE" 2>&1; then
+                        "$BIN/tedge" reconnect c8y >> "$LOG_FILE" 2>&1
+                    else
+                        echo "Skipping tedge reconnect as c8y is already connected successfully" >> "$LOG_FILE"
+                    fi
+                else
+                    echo "Skipping tedge reconnect as c8y is not configured" >> "$LOG_FILE"
+                fi
+            ) &
+        fi
+    ;;
+
+    stop)
+        echo "Nothing to stop."
+        ;;
+
+    *)
+        echo "Usage: /etc/init.d/S99tedge-reconnect {start|stop}"
+        exit 1
+        ;;
+esac
+
+exit 0

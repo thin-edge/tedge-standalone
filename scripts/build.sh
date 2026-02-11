@@ -76,27 +76,12 @@ fi
 
 git submodule update --init --recursive
 
-cd binaries/zig-mosquitto
-ln -sf ../mosquitto mosquitto
+cd "binaries/zig-mosquitto"
 
-# patch zig-mosquitto to include mosquitto version
-# FIXME: This should be done by zig-mosquitto itself
-MOSQUITTO_VERSION=$(cd mosquitto && git tag --points-at HEAD | sed 's/^v//')
-echo "Setting mosquitto version from src tag: $MOSQUITTO_VERSION" >&2
-SED="sed"
-if command -V gsed >/dev/null 2>&1; then
-    SED="gsed"
-fi
-"$SED" -i 's|-DVERSION=\\\".*\\\"|-DVERSION=\\\"'"$MOSQUITTO_VERSION"'\\\"|g' build.zig
-
-$ZIG build -Doptimize=ReleaseSmall -Dtarget="$TARGET"
-mv zig-out/bin/mosquitto "zig-out/bin/mosquitto-$TARGET"
-
-if [ "$SKIP_UPX" -ne 1 ]; then
-    if command -V upx; then
-        upx --lzma --best "zig-out/bin/mosquitto-$TARGET"
-    fi
-fi
+# NOTE: the zig-mosquitto builds both the upx and non-upx variants
+# FIXME: Once the zig-mosquitto package is published to Cloudsmith, remove the need to build it manually
+# as it will significantly reduce the build times
+just build "$TARGET"
 
 # Download tedge
 cd ../../
@@ -137,7 +122,13 @@ if [ "$SKIP_UPX" -ne 1 ]; then
     fi
 fi
 
-cp "binaries/zig-mosquitto/zig-out/bin/mosquitto-${TARGET}" src/tedge/bin/mosquitto
+# Note: the zig-mosquitto takes care of creating the upx'd packages itself
+if [ "$SKIP_UPX" = 1 ]; then
+    cp "binaries/zig-mosquitto/dist/mosquitto_${TARGET}/mosquitto" src/tedge/bin/mosquitto
+else
+    cp "binaries/zig-mosquitto/dist/mosquitto-upx_${TARGET}/mosquitto" src/tedge/bin/mosquitto
+fi
+
 cp "tedge-${TARGET}" src/tedge/bin/tedge
 
 TAR="tar"

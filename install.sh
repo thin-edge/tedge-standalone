@@ -156,6 +156,19 @@ move_if_target_file_missing() {
     fi
 }
 
+use_manufacturer_specific_identity_if_found() {
+    # Check the device specific identity script and replace the tedge-identity
+    identity_script="$INSTALL_PATH/tedge/bin/$1"
+    value=$("$identity_script" 2>/dev/null | head -n1 ||:)
+    if [ -n "$value" ]; then
+        echo "Replacing default tedge-identity with the device specific script: $(basename "$identity_script")" >&2
+        mv "$identity_script" "$INSTALL_PATH/tedge/bin/tedge-identity"
+        chmod +x "$INSTALL_PATH/tedge/bin/tedge-identity"
+        return
+    fi
+    rm -f "$identity_script"
+}
+
 main() {
     if [ -f "$INSTALL_FILE" ]; then
         echo "Installing from file: $INSTALL_FILE" >&2
@@ -181,6 +194,9 @@ main() {
         move_if_target_file_missing "system.default.toml" "system.toml"
     fi
 
+    # check device type
+    use_manufacturer_specific_identity_if_found "tedge-identity-actility-tao" ||:
+    
     echo
     echo "Configure and start thin-edge.io using the following command:"
     echo
