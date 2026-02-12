@@ -1,0 +1,12 @@
+
+# start the compose project
+start:
+    docker compose up --build
+
+# stop the compose project
+stop:
+    docker compose down
+
+# stop and delete any resources
+delete:
+    docker compose down -v
