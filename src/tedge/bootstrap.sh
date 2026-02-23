@@ -285,6 +285,13 @@ connect_c8y() {
 post_bootstrap() {
     MESSAGE=$(printf '{"text": "tedge started up 🚀 version=%s"}' "$(tedge --version | cut -d' ' -f2)")
     tedge mqtt pub --qos 1 "te/device/main///e/startup" "$MESSAGE"
+
+    # run vendor specific bootstrap scripts
+    if command -V run-parts >/dev/null 2>&1; then
+        if [ -d "$CONFIG_DIR/bootstrap.d" ]; then
+            run-parts "$CONFIG_DIR/bootstrap.d"
+        fi
+    fi
 }
 
 #

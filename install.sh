@@ -6,6 +6,7 @@ VERSION="${VERSION:-0.12.1}"
 INSTALL_FILE="${INSTALL_FILE:-}"
 OVERWRITE_CONFIG=0
 VERSION_SUFFIX="${VERSION_SUFFIX:-""}"
+VENDOR_NAME="${VENDOR_NAME:-}"
 
 usage() {
     cat << EOT
@@ -23,6 +24,7 @@ ARGUMENTS
   --upx                         Use upx'd versions of the binaries (Default).
                                 Useful for devices with very limited disk space (< 10MB) and have memory more than 64MB
   --no-upx                      Don't download the upx'd version (e.g. recommended for low-memory devices)
+  --vendor <name>               Vendor specific installation settings. Requires internet connectivity
 
 EXAMPLE
 
@@ -65,6 +67,10 @@ while [ $# -gt 0 ]; do
             ;;
         --overwrite)
             OVERWRITE_CONFIG=1
+            ;;
+        --vendor)
+            VENDOR_NAME="$2"
+            shift
             ;;
         --help|-h)
             usage
@@ -173,6 +179,21 @@ configure_shell() {
     fi
 }
 
+install_vendor_specific() {
+    # download an execute a vendor specific install script
+    if [ -n "$VENDOR_NAME" ]; then
+        VENDOR_INSTALL_SCRIPT="https://raw.githubusercontent.com/thin-edge/tedge-standalone/main/vendor/${VENDOR_NAME}/install.sh"
+        echo "Downloading vendor specific install script. name=$VENDOR_NAME, url=$VENDOR_INSTALL_SCRIPT" >&2
+        if ! wget -q -O - "$VENDOR_INSTALL_SCRIPT" > "/tmp/install-${VENDOR_NAME}.sh"; then
+            echo "ERROR: Failed to download vendor specific install script. url=$VENDOR_INSTALL_SCRIPT" >&2
+            return
+        fi
+        chmod +x "/tmp/install-${VENDOR_NAME}.sh"
+        sh "/tmp/install-${VENDOR_NAME}.sh" --install-path "$INSTALL_PATH"
+        rm -f "/tmp/install-${VENDOR_NAME}.sh"
+    fi
+}
+
 main() {
     if [ -f "$INSTALL_FILE" ]; then
         echo "Installing from file: $INSTALL_FILE" >&2
@@ -199,6 +220,8 @@ main() {
     fi
 
     configure_shell
+
+    install_vendor_specific
 
     echo
     echo "Configure and start thin-edge.io using the following command:"
