@@ -68,5 +68,5 @@ EOT
 fi
 
 echo "Setting tedge settings to use a custom mqtt port (1884)" >&2
-tedge config set mqtt.bind.port 1884
-tedge config set mqtt.client.port 1884
+tedge config set mqtt.bind.port 1884 2>/dev/null
+tedge config set mqtt.client.port 1884 2>/dev/null
