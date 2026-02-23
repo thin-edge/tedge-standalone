@@ -89,13 +89,21 @@ case "$COMMAND" in
         ;;
     install)
         if [ -n "$FILE" ]; then
-            chmod +x "$FILE"
-            if ! "$FILE" --version; then
-                log "Failed to run new binary. tmpfile=$FILE"
-                exit "$EXIT_FAILURE"
+            # Try extracting as a tar.gz archive directly into the bin folder
+            if tar tzf "$FILE" >/dev/null 2>&1; then
+                tar -xzf "$FILE" -C "@CONFIG_DIR@/bin/"
+                if [ -f "@CONFIG_DIR@/bin/${MODULE_NAME}" ]; then
+                    chmod +x "@CONFIG_DIR@/bin/${MODULE_NAME}"
+                fi
+            else
+                chmod +x "$FILE"
+                if ! "$FILE" --version; then
+                    log "Failed to run new binary. tmpfile=$FILE"
+                    exit "$EXIT_FAILURE"
+                fi
+                log "Moving binary from $FILE to @CONFIG_DIR@/bin/${MODULE_NAME}"
+                mv "$FILE" "@CONFIG_DIR@/bin/${MODULE_NAME}"
             fi
-            log "Moving binary from $FILE to @CONFIG_DIR@/bin/${MODULE_NAME}"
-            mv "$FILE" "@CONFIG_DIR@/bin/${MODULE_NAME}"
 
             # post installation actions
             case "$MODULE_NAME" in
