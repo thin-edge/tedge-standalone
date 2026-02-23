@@ -48,6 +48,9 @@ manage_initd() {
             "$SERVICE_SCRIPT" restart
             ;;
         enable)
+            if command -V update-rc.d >/dev/null 2>&1; then
+                update-rc.d "$(basename "$SERVICE_SCRIPT")" defaults ||:
+            fi
             ln -sf "$SOURCE_SCRIPT" "$SERVICE_SCRIPT"
             ;;
         disable)
