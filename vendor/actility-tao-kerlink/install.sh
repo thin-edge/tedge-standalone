@@ -2,6 +2,24 @@
 set -e
 INSTALL_PATH="${INSTALL_PATH:-/data}"
 
+usage() {
+    cat << EOT
+Actility TAO Kerlink installation script which adds configuration
+required to run thin-edge.io reliably.
+
+USAGE
+    $0 --install-path <path>
+
+ARGUMENTS
+  --install-path <path>         Install path. Defaults to $INSTALL_PATH
+
+EXAMPLE
+
+    $0 --install-path /data
+    # Install under a custom location
+EOT
+}
+
 while [ $# -gt 0 ]; do
     case "$1" in
         --install-path)
