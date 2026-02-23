@@ -13,8 +13,10 @@ This is the thin-edge installation instructions for Actility TAO device -- kerli
 2. Run the Kerlink specific install script
 
     ```sh
-    wget -q -O - https://raw.githubusercontent.com/thin-edge/tedge-standalone/main/vendor/actility-tao-kerlink/install.sh | sh -s
+    wget -q -O - https://raw.githubusercontent.com/thin-edge/tedge-standalone/main/vendor/actility-tao-kerlink/install.sh | sh -s -- --install-path /user
     ```
+
+    The script will configure the following:
 
     * Create monit rules to monit thin-edge.io components
     * Set custom MQTT ports so they don't conflict with the existing mosquitto broker
@@ -37,7 +39,7 @@ This is the thin-edge installation instructions for Actility TAO device -- kerli
     /user/tedge/bootstrap.sh --ca c8y --c8y-url 'example.eu-latest.cumulocity.com'
     ```
 
-    By default, the device id attempt to be auto detected from the `/user/actility/FDB_lora/lUUID/` folder. But you can manually provide a user-defined device id.
+    By default, the `tedge-identity` script will attempt to be auto detected from the `/user/actility/FDB_lora/lUUID/` folder, but you can manually provide a user-defined device id.
 
     ```sh
     /user/tedge/bootstrap.sh --ca c8y --c8y-url "example.eu-latest.cumulocity.com" --device-id "kerlink-abcdef"

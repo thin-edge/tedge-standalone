@@ -1,13 +1,40 @@
 #!/bin/sh
 set -e
+INSTALL_PATH="${INSTALL_PATH:-/data}"
 
-if [ -f /etc/profile ]; then
-	. /etc/profile
+while [ $# -gt 0 ]; do
+    case "$1" in
+        --install-path)
+            INSTALL_PATH="$2"
+            shift
+            ;;
+        --help|-h)
+            usage
+            exit 0
+            ;;
+        --*|-*)
+            echo "Unknown flags. $1" >&2
+            exit 1
+            ;;
+        *)
+            echo "Unexpected positional arguments" >&2
+            exit 1
+            ;;
+    esac
+    shift
+done
+
+if [ -f "$INSTALL_PATH/env" ]; then
+	. "$INSTALL_PATH/env" ||:
 fi
 
-if [ -n "$TEDGE_CONFIG_DIR" ]; then
-	echo "Adding Actility tao kerlink tedge-identity to $TEDGE_CONFIG_DIR/bin/tedge-identity" >&2
-	cat <<'EOT'	> "$TEDGE_CONFIG_DIR/bin/tedge-identity"
+if [ -z "$TEDGE_CONFIG_DIR" ]; then
+	echo "ERROR: The env variable 'TEDGE_CONFIG_DIR' has not been set. Check your /etc/profile" >&2
+	exit 1
+fi
+
+echo "Adding Actility tao kerlink tedge-identity to $TEDGE_CONFIG_DIR/bin/tedge-identity" >&2
+cat <<'EOT'	> "$TEDGE_CONFIG_DIR/bin/tedge-identity"
 #!/bin/sh
 set -eu
 
@@ -34,8 +61,7 @@ fi
 
 exit 1
 EOT
-	chmod +x "$TEDGE_CONFIG_DIR/bin/tedge-identity"
-fi
+chmod +x "$TEDGE_CONFIG_DIR/bin/tedge-identity"
 
 if [ -d /etc/monit.d ]; then
 	echo "Adding tedge monit rules to /etc/monit.d/tedge" >&2
@@ -62,6 +88,7 @@ EOT
 	{
 		echo "#!/bin/sh"
 		echo "set -e"
+		echo "echo Enable monit monitoring of thin-edge.io services"
 		echo "monit monitor tedge-mosquitto tedge-mapper-c8y tedge-agent"
 	} > "$TEDGE_CONFIG_DIR/bootstrap.d/10_enable_monit"
 	chmod +x "$TEDGE_CONFIG_DIR/bootstrap.d/10_enable_monit"
