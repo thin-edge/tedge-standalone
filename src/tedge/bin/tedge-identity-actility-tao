@@ -1,0 +1,26 @@
+#!/bin/sh
+set -eu
+
+IDENTITY_PREFIX=${IDENTITY_PREFIX:-}
+DEVICE_ID=${DEVICE_ID:-}
+
+if [ -d /user/actility/FDB_lora/lUUID ]; then
+    # try parsing it from the xml file
+    DEVICE_ID=$(awk -F'<LRRuuid>|</LRRuuid>' '{print $2; exit}' /user/actility/FDB_lora/lUUID/* | head -n1)
+    if [ -z "$DEVICE_ID" ]; then
+        # fallback to using the filename
+        DEVICE_ID=$(find /user/actility/FDB_lora/lUUID -type f -maxdepth 1 -exec basename {} \; | head -n1)
+    fi
+    
+fi
+
+if [ -n "$DEVICE_ID" ]; then
+    if [ -n "$IDENTITY_PREFIX" ]; then
+        echo "${IDENTITY_PREFIX}-${DEVICE_ID}"
+    else
+        echo "${DEVICE_ID}"
+    fi
+    exit 0
+fi
+
+exit 1

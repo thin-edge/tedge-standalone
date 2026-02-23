@@ -1,7 +1,4 @@
 [submodule "binaries/zig-mosquitto"]
 	path = binaries/zig-mosquitto
-	url = https://github.com/didier-wenzek/zig-mosquitto
+	url = https://github.com/thin-edge/zig-mosquitto
 	branch = main
-[submodule "binaries/mosquitto"]
-	path = binaries/mosquitto
-	url = https://github.com/eclipse/mosquitto.git
