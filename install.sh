@@ -156,6 +156,17 @@ move_if_target_file_missing() {
     fi
 }
 
+configure_shell() {
+    if ! grep -F ". $INSTALL_PATH/tedge/env" /etc/profile; then
+        if [ -w /etc/profile ]; then
+            echo "Adding tedge snippet to shell profile: path=/etc/profile" >&2
+            echo "if [ -f $INSTALL_PATH/tedge/env ]; then . $INSTALL_PATH/tedge/env; fi" >> /etc/profile ||:
+        else
+            echo "WARN: Can't add tedge snippet to shell profile as '/etc/profile' is not writable" >&2
+        fi
+    fi
+}
+
 main() {
     if [ -f "$INSTALL_FILE" ]; then
         echo "Installing from file: $INSTALL_FILE" >&2
@@ -180,6 +191,8 @@ main() {
         move_if_target_file_missing "tedge.default.toml" "tedge.toml"
         move_if_target_file_missing "system.default.toml" "system.toml"
     fi
+
+    configure_shell
 
     echo
     echo "Configure and start thin-edge.io using the following command:"
