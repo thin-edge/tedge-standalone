@@ -7,27 +7,21 @@ This is the thin-edge installation instructions for Actility TAO device -- kerli
 1. Run the install script with install-path option
 
     ```sh
-    wget -q -O - https://raw.githubusercontent.com/thin-edge/tedge-standalone/main/install.sh | sh -s -- --install-path /user
+    wget -q -O - https://raw.githubusercontent.com/thin-edge/tedge-standalone/main/install.sh | sh -s -- --install-path /user --vendor actility-tao-kerlink
     ```
 
-2. Run the Kerlink specific install script
+    The script will also apply some vendor specific settings like:
 
-    ```sh
-    wget -q -O - https://raw.githubusercontent.com/thin-edge/tedge-standalone/main/vendor/actility-tao-kerlink/install.sh | sh -s -- --install-path /user
-    ```
-
-    The script will configure the following:
-
-    * Create monit rules to monit thin-edge.io components
+    * Add monit rules to monit thin-edge.io components
     * Set custom MQTT ports so they don't conflict with the existing mosquitto broker
 
-3. Reload your shell
+2. Reload your shell
 
     ```sh
     . /user/tedge/env
     ```
 
-4. Run the bootstrap to initialize and connect the device to Cumulocity using the Cumulocity Certificate Authority
+3. Run the bootstrap to initialize and connect the device to Cumulocity using the Cumulocity Certificate Authority
 
     ```sh
     /user/tedge/bootstrap.sh --ca c8y --c8y-url '<cumulocity-url>'
@@ -51,4 +45,4 @@ This is the thin-edge installation instructions for Actility TAO device -- kerli
 
     * If you don't see the registration URL on your console then try closing the terminal, and opening a new window as sometimes the terminal's output can get corrupted and hide messages that were printed to it.
 
-5. Reboot the device to verify that thin-edge.io automatically connects to Cumulocity
+4. Reboot the device to verify that thin-edge.io automatically connects to Cumulocity
