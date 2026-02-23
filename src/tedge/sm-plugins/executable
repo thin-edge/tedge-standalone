@@ -96,6 +96,32 @@ case "$COMMAND" in
             fi
             log "Moving binary from $FILE to @CONFIG_DIR@/bin/${MODULE_NAME}"
             mv "$FILE" "@CONFIG_DIR@/bin/${MODULE_NAME}"
+
+            # post installation actions
+            case "$MODULE_NAME" in
+                tedge)
+                    if ! tedge refresh-bridges; then
+                        log "ERROR: Failed to refresh cloud bridges"
+                    fi
+
+                    if command_exists "@CONFIG_DIR@/bin/tedgectl"; then
+                        # only restart the mappers which are configured
+                        mappers="c8y az aws"
+                        for mapper in $mappers; do
+                            if tedge config get "${mapper}.url" >/dev/null 2>&1; then
+                                log "Restarting service: tedge-mapper-${mapper}"
+                                "@CONFIG_DIR@/bin/tedgectl" restart "tedge-mapper-${mapper}"
+                            fi
+                        done
+                    fi
+                    ;;
+                mosquitto)
+                    if command_exists "@CONFIG_DIR@/bin/tedgectl"; then
+                        log "Restarting service: mosquitto"
+                        "@CONFIG_DIR@/bin/tedgectl" restart mosquitto
+                    fi
+                    ;;
+            esac
         else
             log "Installing a binary without providing the url is not supported: MODULE_NAME=$MODULE_NAME, MODULE_VERSION=$MODULE_VERSION, FILE=$FILE"
             exit "$EXIT_FAILURE"
