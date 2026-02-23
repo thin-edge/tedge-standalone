@@ -157,12 +157,18 @@ move_if_target_file_missing() {
 }
 
 configure_shell() {
-    if ! grep -F ". $INSTALL_PATH/tedge/env" /etc/profile; then
-        if [ -w /etc/profile ]; then
-            echo "Adding tedge snippet to shell profile: path=/etc/profile" >&2
-            echo "if [ -f $INSTALL_PATH/tedge/env ]; then . $INSTALL_PATH/tedge/env; fi" >> /etc/profile ||:
-        else
-            echo "WARN: Can't add tedge snippet to shell profile as '/etc/profile' is not writable" >&2
+    if [ -d /etc/profile.d ]; then
+        if [ ! -e /etc/profile.d/tedge ]; then
+            ln -s "$INSTALL_PATH/tedge/env" /etc/profile.d/tedge
+        fi
+    elif [ -e /etc/profile ]; then
+        if ! grep -F ". $INSTALL_PATH/tedge/env" /etc/profile; then
+            if [ -w /etc/profile ]; then
+                echo "Adding tedge snippet to shell profile: path=/etc/profile" >&2
+                echo "if [ -f $INSTALL_PATH/tedge/env ]; then . $INSTALL_PATH/tedge/env; fi" >> /etc/profile ||:
+            else
+                echo "WARN: Can't add tedge snippet to shell profile as '/etc/profile' is not writable" >&2
+            fi
         fi
     fi
 }
