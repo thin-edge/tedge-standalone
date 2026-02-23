@@ -196,16 +196,38 @@ if [ -n "$DEVICE_ID" ]; then
     tedge config set device.id "$DEVICE_ID"
 fi
 
+running_interactively () { [ -t 0 ] && [ -t 2 ]; }
+
+normalize_url() {
+    echo "$1" | sed -E 's|^https?://||g'
+}
+
 configure_c8y_url() {
-    if [ -z "$(tedge config get c8y.url 2>/dev/null)" ]; then
-        if [ -z "$C8Y_URL" ]; then
+    should_set_url=1
+    CURRENT_URL="$(tedge config get c8y.url 2>/dev/null ||:)"
+    C8Y_URL=$(normalize_url "$C8Y_URL")
+
+    if [ -n "$CURRENT_URL" ] && [ -n "$C8Y_URL" ]; then
+        if [ "$C8Y_URL" = "$CURRENT_URL" ]; then
+            should_set_url=0
+        fi
+    elif [ -z "$CURRENT_URL" ]; then
+        if [ -z "$C8Y_URL" ] && running_interactively; then
             printf "Enter c8y.url: "
             read -r C8Y_URL
         fi
+        C8Y_URL=$(normalize_url "$C8Y_URL")
+    fi
 
-        C8Y_URL=$(echo "$C8Y_URL" | sed -E 's|^https?://||g')
+    if [ -z "$C8Y_URL" ]; then
+        should_set_url=0
+    fi
+
+    if [ "$should_set_url" ]; then
         echo "Setting c8y.url to $C8Y_URL"
         tedge config set c8y.url "$C8Y_URL"
+    else
+        echo "Skipping setting c8y.url as no url was provided"
     fi
 }
 
