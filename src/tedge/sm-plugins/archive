@@ -27,7 +27,7 @@ MODULE_VERSION=
 FILE=
 
 # Path to the root directory
-ARCHIVE_ROOT_DIR=/data
+ARCHIVE_ROOT_DIR=${ARCHIVE_ROOT_DIR:-/data}
 MAINTSCRIPT_DIR=SCRIPTS
 
 log() { echo "$@" >&2; }
