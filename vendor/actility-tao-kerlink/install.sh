@@ -42,8 +42,8 @@ while [ $# -gt 0 ]; do
     shift
 done
 
-if [ -f "$INSTALL_PATH/env" ]; then
-	. "$INSTALL_PATH/env" ||:
+if [ -f "$INSTALL_PATH/tedge/env" ]; then
+	. "$INSTALL_PATH/tedge/env" ||:
 fi
 
 if [ -z "$TEDGE_CONFIG_DIR" ]; then
