@@ -88,7 +88,7 @@ do_start() {
     if [ $run_service = 1 ]
     then
         log_begin_msg "Starting tedge-agent daemon..."
-        tedge init ||:
+        tedge init --user "$DAEMON_USER" --group "$DAEMON_USER" ||:
 
         # Create log file with given user so it can write to it (for non-root users)
         touch "$LOG_FILE"
