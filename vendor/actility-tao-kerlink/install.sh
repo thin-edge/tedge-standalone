@@ -42,8 +42,8 @@ while [ $# -gt 0 ]; do
     shift
 done
 
-if [ -f "$INSTALL_PATH/env" ]; then
-	. "$INSTALL_PATH/env" ||:
+if [ -f "$INSTALL_PATH/tedge/env" ]; then
+	. "$INSTALL_PATH/tedge/env" ||:
 fi
 
 if [ -z "$TEDGE_CONFIG_DIR" ]; then
@@ -113,5 +113,5 @@ EOT
 fi
 
 echo "Setting tedge settings to use a custom mqtt port (1884)" >&2
-tedge config set mqtt.bind.port 1884 2>/dev/null
-tedge config set mqtt.client.port 1884 2>/dev/null
+tedge config set mqtt.bind.port 1884
+tedge config set mqtt.client.port 1884
