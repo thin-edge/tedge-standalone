@@ -73,7 +73,7 @@ done
 SETTINGS_FILE=@CONFIG_DIR@/env
 FOUND_FILE=
 if [ -f "$SETTINGS_FILE" ]; then
-    FOUND_FILE=$(find "$SETTINGS_FILE" -perm 644 | head -1)
+    FOUND_FILE=$(find "$SETTINGS_FILE" -perm 644 | head -n1)
 fi
 
 if [ -n "$FOUND_FILE" ]; then
