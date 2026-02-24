@@ -151,7 +151,6 @@ case "$COMMAND" in
             log "Unpacking zip file"
             log "TODO: zip files are not yet supported"
             exit $EXIT_FAILURE
-            unzip "$FILE" -d "$ARCHIVE_ROOT_DIR" -x "$POST_FILE"
         else
             log "Unknown file format. Only gzips and zip files are supported"
             exit "$EXIT_FAILURE"
