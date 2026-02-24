@@ -94,7 +94,12 @@ case "$COMMAND" in
     prepare)
         ;;
     list)
-        find "$(get_software_dir)" -type f -name "package" | while read -r ITEM; do
+        DIR=$(get_software_dir)
+        if [ ! -d "$DIR" ]; then
+            echo "archive directory does not exist. path=$DIR" >&2
+            exit "$EXIT_OK"
+        fi
+        find "$DIR" -type f -name "package" | while read -r ITEM; do
             head -n1 "$ITEM"
         done
         ;;
