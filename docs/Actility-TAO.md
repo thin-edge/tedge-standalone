@@ -46,3 +46,11 @@ This is the thin-edge installation instructions for Actility TAO device -- kerli
     * If you don't see the registration URL on your console then try closing the terminal, and opening a new window as sometimes the terminal's output can get corrupted and hide messages that were printed to it.
 
 4. Reboot the device to verify that thin-edge.io automatically connects to Cumulocity
+
+### Uninstalling
+
+You can uninstall thin-edge.io by running the following script, though this will stop and remove all components, so please do not run on a production system!
+
+```sh
+wget -q -O - https://raw.githubusercontent.com/thin-edge/tedge-standalone/main/uninstall.sh | sh -s -- --install-path /user --force
+```
