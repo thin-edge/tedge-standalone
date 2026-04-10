@@ -1,7 +1,6 @@
 *** Settings ***
 Resource            ./resources/common.resource
 Library    Cumulocity
-Library    DeviceLibrary
 
 Test Teardown    Stop Device
 
