@@ -162,11 +162,6 @@ else
     echo "WARNING: Could not start services as 'runsvdir' is not installed. You will need to start the services yourself" >&2
 fi
 
-if [ ! -e "$CONFIG_DIR/sm-plugins/flow" ]; then
-    # creating flow sm-plugin symlink
-    ln -s "$CONFIG_DIR/bin/tedge" "$CONFIG_DIR/sm-plugins/flow"
-fi
-
 C8Y_AUTH_METHOD=certificate
 C8Y_CREDENTIALS_PATH=$(tedge config get c8y.credentials_path 2>/dev/null ||:)
 
