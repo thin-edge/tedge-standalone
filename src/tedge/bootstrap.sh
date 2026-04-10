@@ -106,7 +106,7 @@ if [ -f "$CONFIG_DIR/env" ]; then
 fi
 
 # Init (also creating the multi-call binary symlinks)
-tedge init --user root --group root
+tedge init
 
 #
 # Configure services if runit is installed

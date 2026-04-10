@@ -1,3 +1,6 @@
+user = "root"
+group = "root"
+
 [init]
 name = "tedgectl"
 is_available = ["@CONFIG_DIR@/bin/tedgectl", "is_available"]
