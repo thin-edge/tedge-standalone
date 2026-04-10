@@ -316,6 +316,10 @@ case "$C8Y_AUTH_METHOD" in
         ;;
 esac
 
+# upgrade config and bridge config
+tedge config upgrade || echo "WARN: tedge config upgrade was not successful"
+tedge refresh-bridges || echo "WARN: tedge refresh-bridges was not successful"
+
 connect_c8y
 
 sleep 5
