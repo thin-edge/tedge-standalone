@@ -53,12 +53,12 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           ref: ${{ github.event_name == 'pull_request_target' && github.event.pull_request.head.sha || '' }}
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@v4
 
       - uses: taiki-e/install-action@just
 
@@ -86,7 +86,7 @@ jobs:
           echo 'TEST_TARGET_NAME="${{ matrix.target.name }}"' >> .env
           cat .env
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version-file: tests/.python-version
           cache: 'pip'
@@ -101,7 +101,7 @@ jobs:
         run: just test
 
       - name: Upload test results
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         if: always()
         with:
           name: reports-${{ matrix.target.name }}-${{ matrix.channel }}-${{ matrix.target.arch }}
