@@ -106,7 +106,7 @@ if [ -f "$CONFIG_DIR/env" ]; then
 fi
 
 # Init (also creating the multi-call binary symlinks)
-tedge init --user root --group root
+tedge init
 
 #
 # Configure services if runit is installed
@@ -315,6 +315,10 @@ case "$C8Y_AUTH_METHOD" in
         esac
         ;;
 esac
+
+# upgrade config and bridge config
+tedge config upgrade || echo "WARN: tedge config upgrade was not successful"
+tedge refresh-bridges || echo "WARN: tedge refresh-bridges was not successful"
 
 connect_c8y
 
