@@ -12,14 +12,14 @@ Install From File With UPX
     Setup Device With Binaries    image=busybox   file=${file}    target_dir=/root
     Install Standalone Binary    ${file}    target_dir=/root
     Bootstrap Using Certificate Authority
-    Tedge Files Should Exist
+    Flows sm-plugin is Installed
 
 Install From File Without UPX
     ${file}=    Set Variable    tedge-standalone-${TARGET.name}-noupx.tar.gz
     Setup Device With Binaries    image=busybox   file=${file}    target_dir=/root
     Install Standalone Binary    ${file}    target_dir=/root
     Bootstrap Using Certificate Authority
-    Tedge Files Should Exist
+    Flows sm-plugin is Installed
 
 Install From URL With UPX
     Setup Device    image=busybox
@@ -36,7 +36,7 @@ Install on SysVInit Device
     Setup SysVInit Device With Binaries    image=debian:12   file=${file}    target_dir=/root
     Install Standalone Binary    ${file}    target_dir=/root
     Bootstrap Using Certificate Authority
-    Tedge Files Should Exist
+    Flows sm-plugin is Installed
 
 *** Keywords ***
 
@@ -50,6 +50,7 @@ Bootstrap Using Certificate Authority
     Cumulocity.Device Should Exist    ${DEVICE_ID}
     Cumulocity.Device Should Have Event/s    expected_text=tedge started up.*    type=startup
 
-Tedge Files Should Exist
+Flows sm-plugin is Installed
     [Arguments]    ${install_path}=/data
     File Should Exist    ${install_path}/tedge/sm-plugins/flow
+    DeviceLibrary.Execute Command    cmd=${install_path}/tedge/sm-plugins/flow list
