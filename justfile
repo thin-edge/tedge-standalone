@@ -5,6 +5,13 @@ PACKAGE := "tedge-standalone"
 build target target_name *args:
     ./scripts/build.sh --target {{target}} --target-name {{target_name}} --package {{PACKAGE}} {{args}}
 
+# Reset git submodules to match .gitmodules (deinit and re-checkout from origin)
+submodule-reset:
+    git submodule deinit -f --all
+    rm -rf .git/modules
+    git submodule sync
+    git submodule update --init --recursive --remote
+
 # Build artifacts to be used in system tests
 build-test:
     just build aarch64-linux-musl arm64-noupx --skip-upx
