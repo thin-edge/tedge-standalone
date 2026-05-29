@@ -11,6 +11,7 @@ PACKAGE="${PACKAGE:-}"
 TEDGE_VERSION="${TEDGE_VERSION:-}"
 TEDGE_CHANNEL="${TEDGE_CHANNEL:-}"
 SKIP_UPX="${SKIP_UPX:-}"
+MOSQUITTO_VERSION=${MOSQUITTO_VERSION:-"2.0.11"}
 
 while [ $# -gt 0 ]; do
     case "$1" in
@@ -76,18 +77,8 @@ fi
 
 git submodule update --init --recursive
 
-cd binaries/zig-mosquitto
-ln -sf ../mosquitto mosquitto
-
-# patch zig-mosquitto to include mosquitto version
-# FIXME: This should be done by zig-mosquitto itself
-MOSQUITTO_VERSION=$(cd mosquitto && git tag --points-at HEAD | sed 's/^v//')
-echo "Setting mosquitto version from src tag: $MOSQUITTO_VERSION" >&2
-SED="sed"
-if command -V gsed >/dev/null 2>&1; then
-    SED="gsed"
-fi
-"$SED" -i 's|-DVERSION=\\\".*\\\"|-DVERSION=\\\"'"$MOSQUITTO_VERSION"'\\\"|g' build.zig
+BUILD_DIR="binaries/zig-mosquitto/build/$MOSQUITTO_VERSION"
+cd "$BUILD_DIR"
 
 $ZIG build -Doptimize=ReleaseSmall -Dtarget="$TARGET"
 mv zig-out/bin/mosquitto "zig-out/bin/mosquitto-$TARGET"
@@ -99,7 +90,7 @@ if [ "$SKIP_UPX" -ne 1 ]; then
 fi
 
 # Download tedge
-cd ../../
+cd ../../../../
 
 case "$TARGET" in
     aarch64-linux-musl)
@@ -137,7 +128,7 @@ if [ "$SKIP_UPX" -ne 1 ]; then
     fi
 fi
 
-cp "binaries/zig-mosquitto/zig-out/bin/mosquitto-${TARGET}" src/tedge/bin/mosquitto
+cp "${BUILD_DIR}/zig-out/bin/mosquitto-${TARGET}" src/tedge/bin/mosquitto
 cp "tedge-${TARGET}" src/tedge/bin/tedge
 
 TAR="tar"
