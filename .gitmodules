@@ -1,4 +1,4 @@
 [submodule "binaries/zig-mosquitto"]
 	path = binaries/zig-mosquitto
-	url = https://github.com/didier-wenzek/zig-mosquitto
-	branch = main
+	url = https://github.com/reubenmiller/zig-mosquitto
+	branch = refactor-remove-dup-build-tasks
