@@ -18,3 +18,6 @@ plugin_paths = ["@CONFIG_DIR@/log-plugins", "/usr/share/tedge/log-plugins"]
 
 [diag]
 plugin_paths = ["@CONFIG_DIR@/diag-plugins", "/usr/share/tedge/diag-plugins"]
+
+[configuration]
+plugin_paths = ["@CONFIG_DIR@/config-plugins", "/usr/share/tedge/diag-plugins"]
