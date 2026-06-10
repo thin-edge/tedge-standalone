@@ -2,7 +2,10 @@
 set -e
 
 INSTALL_PATH="${INSTALL_PATH:-/data}"
-VERSION="${VERSION:-2.0.1-2}"
+# "latest" resolves to the most recent published (non-draft) GitHub release.
+# Pin a specific release with --version <x.y.z-N> or VERSION=<x.y.z-N>.
+VERSION="${VERSION:-latest}"
+REPO="${REPO:-thin-edge/tedge-standalone}"
 INSTALL_FILE="${INSTALL_FILE:-}"
 OVERWRITE_CONFIG=0
 VERSION_SUFFIX="${VERSION_SUFFIX:-""}"
@@ -142,9 +145,17 @@ install_from_web() {
             ;;
     esac
 
+    ASSET="tedge-standalone-${TARGET_ARCH}${VERSION_SUFFIX}.tar.gz"
+    if [ "$VERSION" = "latest" ]; then
+        DOWNLOAD_URL="https://github.com/${REPO}/releases/latest/download/${ASSET}"
+    else
+        DOWNLOAD_URL="https://github.com/${REPO}/releases/download/${VERSION}/${ASSET}"
+    fi
+
     cd /tmp
-    rm -f "tedge-standalone-${TARGET_ARCH}${VERSION_SUFFIX}.tar.gz"
-    wget -q "https://github.com/thin-edge/tedge-standalone/releases/download/$VERSION/tedge-standalone-${TARGET_ARCH}${VERSION_SUFFIX}.tar.gz"
+    rm -f "$ASSET"
+    echo "Downloading $DOWNLOAD_URL" >&2
+    wget -q "$DOWNLOAD_URL"
     mkdir -p "$INSTALL_PATH"
     echo "Installing thin-edge.io to $INSTALL_PATH/tedge"
 
