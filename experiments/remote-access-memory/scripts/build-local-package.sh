@@ -38,6 +38,16 @@ mkdir -p "$work/bin-extract"
 tar xzf "$work/tedge.tar.gz" -C "$work/bin-extract"
 install -m 0755 "$work/bin-extract/tedge" "$work/tedge/bin/tedge"
 
+# Mirror scripts/build.sh: drop the .tedge-run-all marker when the bundled binary
+# supports `tedge run all` (main channel). With the single-service packaging this is
+# what makes tedgectl route tedge-agent / tedge-mapper-* to the combined 'tedge'
+# service; without it (release channel) the separate services are used.
+if [ "$CHANNEL" = "main" ]; then
+    : > "$work/tedge/.tedge-run-all"
+else
+    rm -f "$work/tedge/.tedge-run-all"
+fi
+
 mkdir -p "$(dirname "$OUT")"
 log "Packaging -> $OUT"
 tar czf "$OUT" --owner=0 --group=0 -C "$work" ./tedge
