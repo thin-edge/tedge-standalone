@@ -7,12 +7,31 @@ on:
     branches:
       - main
   workflow_dispatch:
+    inputs:
+      tedge_channel:
+        description: "tedge binary channel to bundle"
+        type: choice
+        options:
+          - main
+          - release
+        default: main
+      tedge_version:
+        description: "tedge version to bundle (blank = latest for the channel)"
+        type: string
+        default: ""
+      release_tag:
+        description: "Tag/name for the test pre-release (REQUIRED to publish)"
+        type: string
+        default: ""
+      publish:
+        description: "Publish a downloadable pre-release (install with: install.sh --version <tag>)"
+        type: boolean
+        default: false
 
 permissions:
   contents: read
 
 env:
-  TEDGE_CHANNEL: release
   # force node24 to remove warnings: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
@@ -20,6 +39,10 @@ jobs:
   build:
     name: Build ${{ matrix.target.arch }}
     runs-on: ubuntu-latest
+    env:
+      # On tag/branch pushes keep the release channel; a manual run can pick main (default)
+      TEDGE_CHANNEL: ${{ inputs.tedge_channel || 'release' }}
+      TEDGE_VERSION: ${{ inputs.tedge_version || '' }}
     strategy:
         fail-fast: false
         matrix:
@@ -50,6 +73,8 @@ jobs:
       - uses: mlugg/setup-zig@v2
         with:
           version: 0.15.1
+      - name: Show build configuration
+        run: echo "channel=$TEDGE_CHANNEL version=${TEDGE_VERSION:-latest}"
       - name: Build (with upx)
         run: just build ${{ matrix.target.arch }} ${{ matrix.target.name }}
       - name: Build (without upx)
@@ -69,16 +94,28 @@ jobs:
     needs: [build]
     permissions:
       contents: write
+    # Publish on a tag push (draft, as before) OR a manual dispatch with publish=true
+    # (published pre-release so a customer can download it via install.sh --version <tag>).
     if: |
       always() &&
-      startsWith(github.ref, 'refs/tags/') &&
-      needs.build.result == 'success'
+      needs.build.result == 'success' &&
+      (
+        startsWith(github.ref, 'refs/tags/') ||
+        (github.event_name == 'workflow_dispatch' && inputs.publish)
+      )
     steps:
       - name: Checkout
         uses: actions/checkout@v6
         with:
           fetch-depth: 0
           persist-credentials: false
+      - name: Validate inputs
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          if [ -z "${{ inputs.release_tag }}" ]; then
+            echo "::error::release_tag is required when publish=true"
+            exit 1
+          fi
       - name: Download release artifacts
         uses: actions/download-artifact@v8
         with:
@@ -89,6 +126,11 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           generate_release_notes: false
-          draft: true
+          # tag push -> draft full release (unchanged); manual -> published pre-release
+          draft: ${{ github.event_name != 'workflow_dispatch' }}
+          prerelease: ${{ github.event_name == 'workflow_dispatch' }}
+          tag_name: ${{ (github.event_name == 'workflow_dispatch' && inputs.release_tag) || github.ref_name }}
+          target_commitish: ${{ github.sha }}
+          name: ${{ (github.event_name == 'workflow_dispatch' && inputs.release_tag) || github.ref_name }}
           files: |
             tmp/**/*.tar.gz
