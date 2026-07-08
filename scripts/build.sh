@@ -131,6 +131,18 @@ fi
 cp "${BUILD_DIR}/zig-out/bin/mosquitto-${TARGET}" src/tedge/bin/mosquitto
 cp "tedge-${TARGET}" src/tedge/bin/tedge
 
+# Mark whether the packaged tedge binary supports `tedge run all` (agent + mapper in
+# one process). tedgectl reads this marker to decide whether to route tedge-agent /
+# tedge-mapper-* service management to the combined 'tedge' service, so it does not
+# need to launch the tedge CLI at runtime. `tedge run all` is currently only provided
+# by the main channel; update this when it reaches the release channel.
+RUN_ALL_MARKER="src/tedge/.tedge-run-all"
+if [ "$TEDGE_CHANNEL" = "main" ]; then
+    : > "$RUN_ALL_MARKER"
+else
+    rm -f "$RUN_ALL_MARKER"
+fi
+
 TAR="tar"
 if command -V gtar >/dev/null 2>&1; then
     TAR="gtar"

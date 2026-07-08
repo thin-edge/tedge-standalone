@@ -12,6 +12,20 @@ manage_initd() {
     command="$1"
     name="$2"
 
+    # The combined 'tedge' service runs the agent and c8y mapper in one process via
+    # `tedge run all`, which only exists on newer tedge binaries. The build drops a
+    # marker file when the packaged binary supports it; when present, route the old
+    # service names to the combined service, otherwise fall back to the separate
+    # tedge-agent / tedge-mapper-* services. Checking a file (rather than launching
+    # the tedge CLI) keeps tedgectl cheap on memory-constrained devices.
+    case "$name" in
+        tedge-mapper-*|tedge-agent)
+            if [ -f "@CONFIG_DIR@/.tedge-run-all" ]; then
+                name=tedge
+            fi
+            ;;
+    esac
+
     # check for non-service related actions first
     case "$command" in
         restart_device)

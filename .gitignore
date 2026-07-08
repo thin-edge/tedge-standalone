@@ -6,6 +6,8 @@ package.tar.gz
 # Ignore the static binaries
 src/tedge/bin/mosquitto
 src/tedge/bin/tedge
+# Build-generated capability marker (see scripts/build.sh)
+src/tedge/.tedge-run-all
 tmp/
 /tedge-*
 binaries/zig-mosquitto/
