@@ -1,0 +1,4 @@
+[exec]
+command = "@CONFIG_DIR@/bin/c8y-ra-wrapper --config-dir @CONFIG_DIR@"
+topic = "c8y/s/ds"
+on_message = "530"

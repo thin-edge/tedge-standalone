@@ -57,6 +57,80 @@ TEDGE_ARCH=amd64 ./scripts/run-experiment.sh        # x86 host
 ./scripts/run-experiment.sh 2.0.1-3 2.0.1-3         # A/B the same version (sanity)
 ```
 
+## Testing non-release builds (variants)
+
+To try changes that aren't in a published `tedge-standalone` release — a custom
+`tedge` binary, an env tweak, or modified service definitions — use **variants**.
+A variant lives in `variants/<name>/` and is built in three layers:
+
+1. A base release package (mosquitto + all scaffolding + a baseline `tedge`).
+2. Optionally **replace the `tedge` binary** with a Cloudsmith `main`/`release`
+   build (`TEDGE_BINARY=cloudsmith`), or drop your own `bin/tedge` into the overlay.
+3. Optionally apply an **overlay** — files copied over `/data/tedge` (service `run`
+   scripts, operation exec lines, `env`, even `bootstrap.sh`). `@CONFIG_DIR@`
+   placeholders are substituted just like the installer does.
+
+Each `variants/<name>/variant.env` sets the build args; run and compare with:
+
+```sh
+./scripts/run-variants.sh <variant-a> <variant-b>
+```
+
+### Bundled variants
+
+| Variant | Binary | Change | Question it answers |
+|---------|--------|--------|---------------------|
+| `release` | 2.0.1-3 release | none (control) | baseline |
+| `tokio1` | 2.0.1-3 release | launch the plugin via a wrapper with `TOKIO_WORKER_THREADS=1` | does a single-threaded tokio runtime cut the plugin's RSS? |
+| `main` | Cloudsmith `main` | none (control) | baseline for the main binary |
+| `main-runall` | Cloudsmith `main` | one `tedge run all c8y` process replaces separate agent + mapper services (+ a run-all `bootstrap.sh`) | does collapsing to one process reduce total footprint? |
+| `local-runall` | Cloudsmith `main` | installs the **real package built from your local `src/tedge`** (`install.sh --file`) | does the actual packaging a customer would download work end-to-end? |
+
+The `local-runall` variant packages your working-tree `src/tedge` (the new single
+`tedge` service + `tedgectl` remap) with the main binary via
+[`scripts/build-local-package.sh`](scripts/build-local-package.sh) and installs it
+exactly as a customer would. Use it to validate a candidate before cutting a test
+release:
+
+```sh
+./scripts/run-variants.sh local-runall            # full round-trip against your tenant
+# or just build the package to inspect / install elsewhere:
+./scripts/build-local-package.sh out.tar.gz main latest arm64
+```
+
+```sh
+# Does TOKIO_WORKER_THREADS=1 help the remote-access plugin?
+./scripts/run-variants.sh release tokio1
+
+# Does `tedge run all c8y` (main branch) lower the total footprint?
+./scripts/run-variants.sh main main-runall
+```
+
+The report adds a **`tedge run-all RSS`** row and a **`RA plugin process count`**
+row. Watch the **total PSS** line for the run-all comparison — that's the honest
+physical saving from running one process instead of two.
+
+### How the variant knobs map to build args
+
+`variant.env` keys → Docker build args (see `device/Dockerfile`):
+
+| variant.env | meaning |
+|-------------|---------|
+| `BASE_VERSION`, `BASE_VARIANT` | base release package + upx suffix (`-noupx`) |
+| `TEDGE_BINARY` | `none` (keep release binary) or `cloudsmith` |
+| `TEDGE_CHANNEL`, `TEDGE_BINARY_VERSION` | Cloudsmith channel + version (`latest` works) |
+| `TEDGE_BINARY_UPX` | `1` to upx-compress the custom binary |
+| `OVERLAY` | path under `variants/` to layer over `/data/tedge` |
+| `LABEL` | column name in the report |
+
+To test a **locally-built** `tedge`, drop it at `variants/<name>/overlay/bin/tedge`
+and leave `TEDGE_BINARY=none` — the overlay copy replaces the binary.
+
+> Note on `main-runall`: its `bootstrap.sh` assumes `tedge run all c8y` brings up
+> the built-in c8y bridge itself. If your `main` build still needs an explicit
+> `tedge connect c8y` first, uncomment the marked line in
+> `variants/main-runall/overlay/bootstrap.sh`.
+
 ## Run steps manually
 
 ```sh

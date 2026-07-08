@@ -20,9 +20,20 @@ services:
       context: .
       dockerfile: device/Dockerfile
       args:
-        VERSION: ${TEDGE_VERSION:-2.0.1-3}
-        VARIANT: ${TEDGE_VARIANT:-}
+        # base release package (scaffolding + mosquitto + baseline tedge binary)
+        VERSION: ${BASE_VERSION:-${TEDGE_VERSION:-2.0.1-3}}
+        VARIANT: ${BASE_VARIANT:-${TEDGE_VARIANT:-}}
         ARCH: ${TEDGE_ARCH:-arm64}
+        # optional custom (non-release) tedge binary
+        TEDGE_BINARY: ${TEDGE_BINARY:-none}
+        TEDGE_CHANNEL: ${TEDGE_CHANNEL:-main}
+        TEDGE_BINARY_VERSION: ${TEDGE_BINARY_VERSION:-latest}
+        TEDGE_BINARY_UPX: ${TEDGE_BINARY_UPX:-0}
+        # optional locally-built package (overrides the release download)
+        LOCAL_PACKAGE: ${LOCAL_PACKAGE:-}
+        # optional overlay + report label
+        OVERLAY: ${OVERLAY:-}
+        PKG_LABEL: ${PKG_LABEL:-}
     hostname: device
     depends_on: [ssh-server]
     networks: [tedge]

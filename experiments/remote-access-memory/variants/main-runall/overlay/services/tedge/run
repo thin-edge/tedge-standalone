@@ -1,0 +1,23 @@
+#!/bin/sh -e
+# Single runit service (named "tedge") that runs tedge-agent + the c8y mapper in ONE
+# process using the main-branch `tedge run all c8y` command, replacing the separate
+# tedge-agent and tedge-mapper-c8y services.
+LOG_FILE="/var/log/tedge.log"
+BIN="@CONFIG_DIR@/bin"
+CONFIG_DIR="@CONFIG_DIR@"
+
+touch "$LOG_FILE"
+
+if [ -f "$CONFIG_DIR/env" ]; then
+    # shellcheck disable=SC1091
+    . "$CONFIG_DIR/env"
+fi
+
+# Create runtime dirs + multicall symlinks (idempotent)
+mkdir -p /var/run/lock
+"$BIN/tedge" init --user root --group root ||:
+
+# Optionally cap the tokio runtime for the combined process too (uncomment to test):
+# export TOKIO_WORKER_THREADS=1
+
+exec chpst -u root "$BIN/tedge" run all c8y >> "$LOG_FILE" 2>&1

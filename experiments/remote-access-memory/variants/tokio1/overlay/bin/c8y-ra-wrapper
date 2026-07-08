@@ -1,0 +1,12 @@
+#!/bin/sh
+# Wrapper used by the c8y_RemoteAccessConnect operation to launch the remote-access
+# plugin with a constrained tokio runtime. TOKIO_WORKER_THREADS caps the number of
+# worker threads tokio's multi-thread scheduler spawns; each worker thread has its
+# own stack (and tokio pre-reserves per-worker structures), so fewer threads can
+# lower RSS. Override the value by exporting TOKIO_WORKER_THREADS before launch.
+#
+# The plugin symlink (@CONFIG_DIR@/bin/c8y-remote-access-plugin -> tedge) is created
+# by `tedge init`. "$@" forwards --config-dir and the SmartREST 530 CONNECT_STRING
+# that tedge appends when it runs the operation.
+exec env TOKIO_WORKER_THREADS="${TOKIO_WORKER_THREADS:-1}" \
+    "@CONFIG_DIR@/bin/c8y-remote-access-plugin" "$@"
