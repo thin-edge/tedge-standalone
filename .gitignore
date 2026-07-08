@@ -12,3 +12,4 @@ binaries/zig-mosquitto/
 log.html
 output.xml
 report.html
+results/

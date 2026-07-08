@@ -1,0 +1,33 @@
+name: tedge-ra-mem
+
+# Two containers on one network:
+#   * ssh-server : the remote-access target (sshd)
+#   * device     : busybox/musl + runit + thin-edge.io (the package under test)
+#
+# The version under test is selected via build args (defaults below). The
+# run-experiment.sh helper rebuilds `device` for each version being compared.
+services:
+  ssh-server:
+    build:
+      context: .
+      dockerfile: ssh-server/Dockerfile
+    hostname: ssh-server
+    networks: [tedge]
+    restart: unless-stopped
+
+  device:
+    build:
+      context: .
+      dockerfile: device/Dockerfile
+      args:
+        VERSION: ${TEDGE_VERSION:-2.0.1-3}
+        VARIANT: ${TEDGE_VARIANT:-}
+        ARCH: ${TEDGE_ARCH:-arm64}
+    hostname: device
+    depends_on: [ssh-server]
+    networks: [tedge]
+    # runsvdir (PID 1) needs to keep running; tty/stdin not required
+    tty: true
+
+networks:
+  tedge: {}
