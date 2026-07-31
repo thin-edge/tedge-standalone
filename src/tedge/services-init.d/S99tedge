@@ -84,6 +84,66 @@ if [ -f /etc/init.d/functions ]; then
 	. /etc/init.d/functions
 fi
 
+# Fallback daemon control for systems without start-stop-daemon
+# (e.g. minimal busybox based devices with very few dependencies).
+have_start_stop_daemon() {
+    command -v start-stop-daemon >/dev/null 2>&1
+}
+
+# Echo the pid recorded in the given pidfile, but only if it is still alive.
+running_pid() {
+    _pidfile="$1"
+    [ -f "$_pidfile" ] || return 1
+    _pid=$(cat "$_pidfile" 2>/dev/null)
+    [ -n "$_pid" ] || return 1
+    kill -0 "$_pid" 2>/dev/null || return 1
+    echo "$_pid"
+}
+
+# Start the daemon in the background and record its pid, mimicking
+# start-stop-daemon --start --background --make-pidfile --oknodo.
+fallback_start() {
+    # Already running? Nothing to do (mimics --oknodo).
+    if running_pid "$PIDFILE" >/dev/null 2>&1; then
+        return 0
+    fi
+
+    _run="exec $DAEMON $DAEMON_ARGS >> \"$LOG_FILE\" 2>&1"
+    if [ -n "$DAEMON_USER" ] && [ "$DAEMON_USER" != "root" ] && [ "$(id -u 2>/dev/null)" = "0" ]; then
+        # Drop privileges. Prefer setpriv, which execs and so keeps the pid we
+        # record below valid; fall back to su otherwise.
+        if command -v setpriv >/dev/null 2>&1; then
+            setpriv --reuid "$DAEMON_USER" --regid "$DAEMON_USER" --init-groups /bin/sh -c "$_run" &
+        elif command -v su >/dev/null 2>&1; then
+            su -s /bin/sh "$DAEMON_USER" -c "$_run" &
+        else
+            /bin/sh -c "$_run" &
+        fi
+    else
+        /bin/sh -c "$_run" &
+    fi
+    echo $! > "$PIDFILE"
+}
+
+# Stop the daemon recorded in the pidfile, mimicking the TERM (up to 30s) then
+# KILL retry schedule used with start-stop-daemon.
+fallback_stop() {
+    _pid=$(running_pid "$PIDFILE" 2>/dev/null) || { rm -f "$PIDFILE"; return 0; }
+
+    kill -TERM "$_pid" 2>/dev/null ||:
+    _i=0
+    while [ "$_i" -lt 30 ]; do
+        kill -0 "$_pid" 2>/dev/null || break
+        sleep 1
+        _i=$((_i + 1))
+    done
+    if kill -0 "$_pid" 2>/dev/null; then
+        kill -KILL "$_pid" 2>/dev/null ||:
+    fi
+    rm -f "$PIDFILE"
+    return 0
+}
+
 do_start() {
     if [ $run_service = 1 ]
     then
@@ -96,8 +156,12 @@ do_start() {
             chown "$DAEMON_USER" "$LOG_FILE"
         fi
 
-        start-stop-daemon --start --quiet --oknodo --background --make-pidfile --pidfile "$PIDFILE" --chuid "${DAEMON_USER}" --user "${DAEMON_USER}" \
-                --startas /bin/sh -- -c "exec $DAEMON $DAEMON_ARGS >> '$LOG_FILE' 2>&1"
+        if have_start_stop_daemon; then
+            start-stop-daemon --start --quiet --oknodo --background --make-pidfile --pidfile "$PIDFILE" --chuid "${DAEMON_USER}" --user "${DAEMON_USER}" \
+                    --startas /bin/sh -- -c "exec $DAEMON $DAEMON_ARGS >> '$LOG_FILE' 2>&1"
+        else
+            fallback_start
+        fi
         log_end_msg $?
     fi
 }
@@ -107,9 +171,15 @@ do_stop() {
     then
         log_begin_msg "Stopping tedge daemon..."
 
-        if start-stop-daemon --stop --quiet --oknodo --retry "$STOP_RETRY_SCHEDULE" --pidfile "${PIDFILE}" --user "${DAEMON_USER}"; then
+        if have_start_stop_daemon; then
+            if start-stop-daemon --stop --quiet --oknodo --retry "$STOP_RETRY_SCHEDULE" --pidfile "${PIDFILE}" --user "${DAEMON_USER}"; then
+                log_end_msg 0
+                rm -f "${PIDFILE}"
+            else
+                log_end_msg 1
+            fi
+        elif fallback_stop; then
             log_end_msg 0
-            rm -f "${PIDFILE}"
         else
             log_end_msg 1
         fi
@@ -147,8 +217,10 @@ case "$1" in
         status_of_proc -p "${PIDFILE}" "${DAEMON}" "tedge" && exit 0 || exit $?
     elif command -V status >/dev/null 2>&1; then
         status "${DAEMON}" && exit 0 || exit $?
+    elif running_pid "$PIDFILE" >/dev/null 2>&1; then
+        exit 0
     else
-        pidof "$(dirname "${DAEMON}")" && exit 0 || exit $?
+        pidof "$(basename "${DAEMON}")" >/dev/null 2>&1 && exit 0 || exit 3
     fi
     ;;
 
