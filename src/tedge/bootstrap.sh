@@ -108,7 +108,7 @@ fi
 # Create log directory
 # FIXME: in 2.0.1 it seems that the log's parent directory
 # is not created anymore, so it needs to be manually created first
-LOGS_PATH=$(tedge config get logs.path 2>dev/null ||:)
+LOGS_PATH=$(tedge config get logs.path 2>/dev/null ||:)
 if [ -n "$LOGS_PATH" ]; then
     mkdir -p "$LOGS_PATH" ||:
 fi
