@@ -1,0 +1,54 @@
+services:
+  mqtt-broker:
+    build:
+      dockerfile: Dockerfile.busybox
+    restart: always
+    volumes:
+      - mosquitto:/mosquitto/data/
+    command:
+      - /usr/bin/mosquitto
+      - -c
+      - /etc/mosquitto/mosquitto.conf
+    networks:
+      - tedge
+
+  tedge-mapper-c8y:
+    build:
+      dockerfile: Dockerfile.busybox
+    restart: always
+    depends_on:
+      - mqtt-broker
+    tmpfs:
+      - /tmp
+    command:
+      - sh
+      - -c
+      - "/usr/bin/bootstrap.sh && /usr/bin/tedge-mapper c8y"
+    environment:
+      - TEDGE_C8Y_URL=${TEDGE_C8Y_URL:-}
+      - DEVICE_ID=${DEVICE_ID:-}
+    volumes:
+      - device-certs:/etc/tedge/device-certs
+    networks:
+      - tedge
+
+  # main device
+  tedge:
+    build:
+      dockerfile: Dockerfile.busybox
+    restart: always
+    tmpfs:
+      - /tmp
+    depends_on:
+      - mqtt-broker
+    command:
+      - /usr/bin/tedge-agent
+    networks:
+      - tedge
+
+volumes:
+  device-certs:
+  mosquitto:
+
+networks:
+  tedge:
