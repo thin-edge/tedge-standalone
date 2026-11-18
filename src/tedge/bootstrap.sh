@@ -289,7 +289,26 @@ connect_c8y() {
     fi
 }
 
+wait_for_c8y_mapper() {
+    # The startup event is not retained, so it is lost if it is published before the
+    # c8y mapper has subscribed. "tedge reconnect c8y --offline" does not wait for the
+    # mapper, so wait for its health status before publishing.
+    if [ -z "$(tedge config get c8y.url 2>/dev/null)" ]; then
+        return 0
+    fi
+    attempt=0
+    while [ "$attempt" -lt 30 ]; do
+        if tedge mqtt sub "te/device/main/service/tedge-mapper-c8y/status/health" --retained-only --duration 1s 2>/dev/null | grep -q '"up"'; then
+            return 0
+        fi
+        attempt=$((attempt + 1))
+        sleep 1
+    done
+    echo "WARNING: tedge-mapper-c8y is not up after 30s, the startup event might not be sent" >&2
+}
+
 post_bootstrap() {
+    wait_for_c8y_mapper
     MESSAGE=$(printf '{"text": "tedge started up 🚀 version=%s"}' "$(tedge --version | cut -d' ' -f2)")
     tedge mqtt pub --qos 1 "te/device/main///e/startup" "$MESSAGE"
 
